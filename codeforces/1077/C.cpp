@@ -56,6 +56,7 @@ int main() {
     for (int32_t i = 0; i < n; i++) {
       cin >> a[i];
     }
+
     solve();
   }
 
