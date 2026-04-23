@@ -27,9 +27,23 @@ int32_t pow(int32_t x, int32_t y) {
 int32_t inverse(int32_t x) { return pow(x, MOD - 2); }
 }; // namespace MO
 
+int32_t n;
+
 int main() {
   ios_base::sync_with_stdio(false);
   cin.tie(NULL);
+
+  int32_t t;
+  cin >> t;
+
+  while (t--) {
+    cin >> n;
+
+    for (int32_t i = n; i >= 1; i--) {
+      cout << i << " ";
+    }
+    cout << "\n";
+  }
 
   return 0;
 }
