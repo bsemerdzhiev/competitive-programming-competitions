@@ -34,6 +34,7 @@ void rec(int32_t k, int32_t from, int32_t to, bool &possible) {
   if (k == -1 || !possible) {
     return;
   }
+  int32_t new_from = from;
   // cout << k << " " << from << " " << to << endl;
   if (a[k] == k) {
     // move current
@@ -51,9 +52,13 @@ void rec(int32_t k, int32_t from, int32_t to, bool &possible) {
     // move current
     ans.push_back({k + 1, from, to});
 
-    rec(to_remove - 1, to ^ from, from, possible);
+    if (to_remove != k) {
+      rec(to_remove - 1, to ^ from, from, possible);
+    } else {
+      new_from = to ^ from;
+    }
   }
-  rec(k - 1, from, to, possible);
+  rec(k - 1, new_from, to, possible);
 }
 
 void solve() {
