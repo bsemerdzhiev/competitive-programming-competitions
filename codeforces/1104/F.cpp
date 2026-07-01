@@ -3,7 +3,7 @@
 using namespace std;
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 5e5 + 5;
 
 namespace MO {
 int32_t add(int64_t x, int64_t y) {
@@ -29,36 +29,34 @@ int32_t inverse(int32_t x) { return pow(x, MOD - 2); }
 
 int32_t n, m;
 int32_t a[MAXN];
-vector<int32_t> correct_ind[MAXN];
-int32_t T[MAXN];
+int32_t pref[MAXN], suff[MAXN], T[MAXN];
 
 void solve() {
-  for (int32_t i{1}; i <= n; i++) {
-    correct_ind[i].clear();
-    T[i] = 0;
+  for (int32_t i{0}; i <= n; i++) {
+    pref[i] = suff[i] = T[i] = -MAXN;
   }
+  pref[0] = 0;
 
-  multiset<int32_t> ms;
-  ms.insert(0);
+  for (int32_t i{0}; i < n; i++) {
+    int32_t temp = suff[i];
 
-  for (int32_t i{1}; i <= n; i++) {
-    int32_t new_ind = m - i + a[i];
-
-    if (new_ind <= n) {
-      correct_ind[new_ind].push_back(i);
+    if (i - a[i] >= 0) {
+      temp = max(temp, pref[i - a[i]]);
+      temp = max(temp, T[i - a[i]]);
     }
+    temp++;
 
-    for (auto x : correct_ind[i]) {
-      ms.erase(ms.find(T[x] - x));
+    pref[i + 1] = max(pref[i], temp);
+    suff[i + 1] = max(suff[i + 1], suff[i]);
+
+    if (i - a[i] >= 0) {
+      T[i - a[i]] = max(temp, T[i - a[i]]);
     }
-
-    ms.insert(T[i] - i);
-
-    for (auto x : correct_ind[i]) {
-      ms.erase(ms.find(T[x] - x));
-      ms.insert(T[x] - x);
+    if (i - a[i] + m <= n) {
+      suff[i - a[i] + m] = max(suff[i - a[i] + m], temp);
     }
   }
+  cout << n - max(0, suff[n]) << "\n";
 }
 
 int main() {
@@ -71,8 +69,9 @@ int main() {
   while (t--) {
     cin >> n >> m;
 
-    for (int32_t i{1}; i <= n; i++) {
+    for (int32_t i{0}; i < n; i++) {
       cin >> a[i];
+      a[i]--;
     }
     solve();
   }
