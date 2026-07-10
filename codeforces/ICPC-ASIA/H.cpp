@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int32_t MOD = 998244353;
+const int32_t MAXN = 2e5 + 5;
+
+namespace MO {
+int32_t add(int64_t x, int64_t y) {
+  return ((x % MOD) + (y % MOD) + MOD) % MOD;
+}
+int32_t mul(int64_t x, int64_t y) { return ((x % MOD) * (y % MOD)) % MOD; }
+
+int32_t pow(int32_t x, int32_t y) {
+  int32_t res = 1;
+
+  while (y) {
+    if (y & 1) {
+      res = mul(res, x);
+    }
+    x = mul(x, x);
+    y >>= 1;
+  }
+  return res;
+}
+
+int32_t inverse(int32_t x) { return pow(x, MOD - 2); }
+}; // namespace MO
+
+int32_t n, a[MAXN];
+
+void solve() {
+  int32_t gcd = 0;
+  int64_t final_ans = 0;
+  for (int32_t i{0}; i < n - 1; i++) {
+    gcd = __gcd(gcd, 2 * abs(a[i] - a[i + 1]));
+    final_ans += abs(a[i] - a[i + 1]);
+  }
+
+  if (gcd == 0) {
+    cout << a[n - 1] << "\n";
+    return;
+  }
+  cout << final_ans + ((a[0] % gcd) == 0 ? gcd : a[0] % gcd) << "\n";
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+
+  cin >> n;
+  for (int32_t i{0}; i < n; i++) {
+    cin >> a[i];
+  }
+  solve();
+
+  return 0;
+}
