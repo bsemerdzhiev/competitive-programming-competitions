@@ -1,8 +1,5 @@
 #include <bits/stdc++.h>
-#include <chrono>
-#include <cstdio>
 #include <iostream>
-#include <random>
 
 using namespace std;
 
@@ -139,6 +136,7 @@ void DBG() { cerr << "]\n"; }
 tcTUU > void DBG(const T &t, const U &...u) {
   cerr << ts(t);
   if (sizeof...(u)) {
+    // DBG(", ");
     cerr << ", ";
   }
   DBG(u...);
@@ -146,12 +144,6 @@ tcTUU > void DBG(const T &t, const U &...u) {
 
 int main() {
   setIO();
-
-  size_t t;
-  cin >> t;
-
-  while (t--) {
-  }
 
   return 0;
 }
