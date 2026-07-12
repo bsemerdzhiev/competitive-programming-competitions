@@ -2,26 +2,8 @@
 
 using namespace std;
 
-using pi = std::pair<int32_t, int32_t>;
-using vi = std::vector<int32_t>;
-using str = std::string;
-
-// pairs
-#define mp make_pair
-#define f first
-#define s second
-
-// loops
-#define FOR(i, a, b) for (int32_t i = (a); i < (b); i++)
-#define ROF(i, a, b) for (int32_t i = (b) - 1; i >= (a); i--)
-#define trav(a, x) for (auto &(a) : (x))
-
 const int32_t MOD = 998244353;
 const int32_t MAXN = 2e5 + 5;
-const int64_t INF = 1e18;
-const double PI = acos(-1);
-const int32_t tSZ = (1 << 21);
-const int32_t dx[4] = {1, 0, -1, 0}, dy[4] = {0, 1, 0, -1}; // for grid problems
 
 namespace MO {
 int32_t add(int64_t x, int64_t y) {
@@ -45,6 +27,30 @@ int32_t pow(int32_t x, int32_t y) {
 int32_t inverse(int32_t x) { return pow(x, MOD - 2); }
 }; // namespace MO
 
+int32_t n;
+int64_t ans[55];
+
+void solve() {
+  if (n == 2) {
+    cout << "-1\n";
+    return;
+  }
+  ans[1] = 1;
+  ans[2] = 2;
+
+  int64_t sum = 3;
+
+  for (int32_t i = 3; i <= n; i++) {
+    ans[i] = sum;
+    sum += sum;
+  }
+  for (int32_t i = 1; i <= n; i++) {
+    cout << ans[i] << " ";
+  }
+
+  cout << "\n";
+}
+
 int main() {
   ios_base::sync_with_stdio(false);
   cin.tie(NULL);
@@ -53,6 +59,8 @@ int main() {
   cin >> t;
 
   while (t--) {
+    cin >> n;
+    solve();
   }
 
   return 0;
