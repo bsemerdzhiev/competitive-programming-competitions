@@ -8,6 +8,7 @@ using namespace std;
 
 using pi = std::pair<int32_t, int32_t>;
 using vi = std::vector<int32_t>;
+using vpi = std::vector<pi>;
 using str = std::string;
 using db = double;
 using ld = long double;

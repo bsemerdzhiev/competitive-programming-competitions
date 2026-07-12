@@ -148,20 +148,6 @@ tcTUU > void DBG(const T &t, const U &...u) {
 
 int32_t n, m, a[MAXN], b[MAXN];
 bool is_in[MAXN * 2];
-vi primes;
-
-int32_t rec(int32_t ind, const vector<pi> &vv, int32_t cur_prod) {
-  if (ind == sz(vv)) {
-    return is_in[cur_prod];
-  }
-  int32_t prod = 1;
-  int32_t ans = 0;
-  for (int32_t i{0}; i <= vv[ind].second; i++) {
-    ans += rec(ind + 1, vv, cur_prod * prod);
-    prod *= vv[ind].first;
-  }
-  return ans;
-}
 
 void solve() {
   for (int32_t i{1}; i <= n + m; i++) {
@@ -210,27 +196,11 @@ void solve() {
   }
 }
 
-void precalc() {
-  vector<bool> non_prime(MAXN * 2, 0);
-
-  // primes.push_back(1);
-  for (int32_t i{2}; i < MAXN * 2; i++) {
-    if (!non_prime[i]) {
-      primes.push_back(i);
-      for (int64_t j(1LL * i * i); j < 2 * MAXN; j += i) {
-        non_prime[j] = 1;
-      }
-    }
-  }
-}
-
 int main() {
   setIO();
 
   size_t t;
   cin >> t;
-
-  // precalc();
 
   while (t--) {
     re(n, m);
