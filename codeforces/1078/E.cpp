@@ -21,7 +21,7 @@ using ld = long double;
 
 // loops
 #define FOR(i, a, b) for (int32_t i = (a); i < (b); i++)
-#define ROF(i, a, b) for (int32_t i = (a) - 1; i >= (b); i--)
+#define ROF(i, a, b) for (int32_t i = (b) - 1; i >= (a); i--)
 #define trav(a, x) for (auto &(a) : (x))
 
 // vectors
@@ -39,7 +39,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 3e3 + 5;
+const int32_t MAXN = 2e5 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -141,59 +141,61 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-struct Parabole {
-  int64_t a, b, c;
-  int32_t ind;
+int32_t n, m;
+vector<vector<int64_t>> a;
+vector<vector<int64_t>> T[2];
 
-  bool intersects(const Parabole &rhs) const {
-    if (a == rhs.a) {
-      if (b == rhs.b) {
-        return c == rhs.c;
-      }
-      return true;
-    }
-
-    int64_t D = (b - rhs.b) * (b - rhs.b) - 4 * (a - rhs.a) * (c - rhs.c);
-    return D >= 0;
-  }
-  bool operator<(const Parabole &rhs) const { return c > rhs.c; }
-};
-
-int32_t n;
-Parabole p[MAXN];
-int32_t T[MAXN][2];
+vector<vector<int64_t>> new_ans;
 
 void solve() {
-  // FOR(i, 0, n) {
-  //   FOR(j, 0, n) { ps(i, j, p[i].intersects(p[j])); }
-  // }
+  FOR(i, 0, n + 2) {
+    T[0][i][0] = -INF;
+    T[1][i][m + 1] = -INF;
+  }
+  FOR(i, 0, m + 2) {
+    T[0][0][i] = -INF;
+    T[1][n + 1][i] = -INF;
+  }
+  T[0][1][0] = T[0][0][1] = T[1][n + 1][m] = T[1][n][m + 1] = 0;
 
-  sort(p, p + n);
+  FOR(i, 1, n + 1) {
+    FOR(j, 1, m + 1) {
+      T[0][i][j] = std::max(T[0][i - 1][j], T[0][i][j - 1]) + a[i][j];
 
-  FOR(i, 0, n) {
-    T[i][0] = 0;
-    // ps(p[i].ind);
-    for (int32_t j{0}; j < i; j++) {
-      if (!p[i].intersects(p[j])) {
-        T[i][0] = std::max(T[i][0], T[j][0] + 1);
-      }
+      T[1][n - i + 1][m - j + 1] =
+          std::max(T[1][n - i + 1][m - j + 2], T[1][n - i + 2][m - j + 1]) +
+          a[n - i + 1][m - j + 1];
     }
   }
 
-  ROF(i, n, 0) {
-    T[i][1] = 0;
-    for (int32_t j{i + 1}; j < n; j++) {
-      if (!p[i].intersects(p[j])) {
-        T[i][1] = std::max(T[i][1], T[j][1] + 1);
-      }
+  FOR(i, 1, n + 1) {
+    int64_t best = -INF;
+    for (int32_t j{m}; j >= 1; j--) {
+      new_ans[i][j] = best;
+      best = std::max(best, T[1][i][j] + T[0][i - 1][j]);
     }
-    // ps(p[i].ind, T[i][1]);
   }
-  vi ans(n, 0);
 
-  FOR(i, 0, n) { ans[p[i].ind] = T[i][0] + T[i][1] + 1; }
-  FOR(i, 0, n) { pr(ans[i], " "); }
-  ps();
+  FOR(i, 1, m + 1) {
+    int64_t best = -INF;
+    for (int32_t j = n; j >= 1; j--) {
+      new_ans[j][i] = std::max(new_ans[j][i], best);
+      best = std::max(best, T[1][j][i] + T[0][j][i - 1]);
+    }
+  }
+
+  new_ans[n][m] = -INF;
+
+  int64_t ans = INF;
+  FOR(i, 1, n + 1) {
+    FOR(j, 1, m + 1) {
+      new_ans[i][j] = std::max(
+          new_ans[i][j], int64_t(T[0][i][j] + T[1][i][j] - 3LL * a[i][j]));
+
+      ans = std::min(ans, new_ans[i][j]);
+    }
+  }
+  ps(ans);
 }
 
 int main() {
@@ -203,10 +205,27 @@ int main() {
   cin >> t;
 
   while (t--) {
-    re(n);
-    FOR(i, 0, n) {
-      re(p[i].a, p[i].b, p[i].c);
-      p[i].ind = i;
+    re(n, m);
+    a.resize(n + 1);
+    T[0].resize(n + 2);
+    T[1].resize(n + 2);
+
+    T[0][0].resize(m + 2);
+    T[0][n + 1].resize(m + 2);
+
+    T[1][0].resize(m + 2);
+    T[1][n + 1].resize(m + 2);
+
+    new_ans.resize(n + 1);
+
+    FOR(i, 1, n + 1) {
+      a[i].resize(m + 1);
+      T[0][i].resize(m + 2);
+      T[1][i].resize(m + 2);
+
+      new_ans[i].resize(m + 1);
+
+      FOR(j, 1, m + 1) { re(a[i][j]); }
     }
     solve();
   }
