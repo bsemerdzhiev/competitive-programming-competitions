@@ -141,39 +141,62 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int32_t n;
-vi graph[MAXN];
+struct Box {
+  int32_t x, y, z;
 
-int32_t rec(int32_t v, int32_t p, int64_t &fin_ans) {
-  int32_t to_be_end = 0;
-  vi indiv;
+  bool operator<(const Box &rhs) const { return x < rhs.x; }
+};
 
-  trav(x, graph[v]) {
-    if (x == p)
-      continue;
-    int32_t res = rec(x, v, fin_ans);
-
-    to_be_end += res;
-    indiv.pb(res);
-  }
-
-  if (sz(graph[v]) % 2 == 0) {
-    // middle node
-    int64_t to_add = 0;
-    trav(x, indiv) { to_add += 1LL * x * (to_be_end - x); }
-    fin_ans += to_add / 2;
-    return to_be_end;
-  } else {
-    // end node
-    fin_ans += to_be_end;
-    return 1;
-  }
-}
+int32_t n, m;
+int64_t k;
+int32_t a[MAXN];
+vector<Box> bxs;
 
 void solve() {
-  int64_t fin_ans = 0;
-  rec(1, 1, fin_ans);
-  ps(fin_ans);
+  sort(a, a + m);
+
+  sor(bxs);
+
+  int32_t z = 0;
+
+  set<pi> ss;
+
+  int32_t ans = 0;
+  vi taken_box(n, 0);
+
+  for (int32_t i = 0; i < m; i++) {
+    while (z < n && bxs[z].x <= a[i]) {
+      ss.insert(mp(bxs[z].z - bxs[z].y, z));
+      z++;
+    }
+
+    if (sz(ss)) {
+      auto x = *ss.rbegin();
+
+      taken_box[x.second] = 1;
+      ans++;
+      ss.erase(ss.find(x));
+    }
+  }
+
+  int64_t cur_sum = 0;
+  vi remaining;
+
+  FOR(i, 0, n) {
+    if (!taken_box[i]) {
+      remaining.pb(bxs[i].z - bxs[i].y);
+    }
+    cur_sum += bxs[i].y;
+  }
+  sor(remaining);
+
+  trav(x, remaining) {
+    if (cur_sum + x <= k) {
+      ans++;
+      cur_sum += x;
+    }
+  }
+  ps(ans);
 }
 
 int main() {
@@ -183,15 +206,17 @@ int main() {
   cin >> t;
 
   while (t--) {
-    re(n);
-    FOR(i, 1, n + 1) { graph[i].clear(); }
-    int32_t v, w;
-    FOR(i, 0, n - 1) {
-      re(v, w);
+    re(n, m, k);
+    FOR(i, 0, m) { re(a[i]); }
 
-      graph[v].pb(w);
-      graph[w].pb(v);
+    int32_t x, y, z;
+    bxs.reserve(n);
+    bxs.clear();
+    FOR(i, 0, n) {
+      re(x, y, z);
+      bxs.push_back(Box{x, y, z});
     }
+
     solve();
   }
 
