@@ -141,13 +141,17 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
+void solve() {}
+
 int main() {
   setIO();
 
   size_t t;
-  cin >> t;
+  re(t);
 
   while (t--) {
+
+    solve();
   }
 
   return 0;
