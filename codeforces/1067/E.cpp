@@ -104,7 +104,7 @@ tcT > void re(vector<T> &v) { trav(x, v) re(x); }
 str ts(char c) { return str(1, c); }
 str ts(const char *s) { return (str)s; }
 str ts(str s) { return s; }
-str ts(bool x) { return x ? "1" : "0"; }
+str ts(bool x) { return x ? "YES" : "NO"; }
 
 // output
 tcT > void pr(const T &x) { cout << ts(x); }
@@ -141,59 +141,7 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {
-  ps(1);
-  cout.flush();
-
-  int32_t f_x;
-  re(f_x);
-  f_x ^= 1;
-
-  if (f_x) {
-    if (f_x & 1) {
-      // first bit was 0
-      ps(0, 1);
-      cout.flush();
-
-      int32_t resp;
-      re(resp);
-
-      ps(resp & 1);
-    } else {
-      int32_t smallest_bit = f_x & (-f_x);
-
-      ps(0, smallest_bit);
-      cout.flush();
-
-      int32_t resp;
-      re(resp);
-
-      ps(!(resp & smallest_bit));
-    }
-  } else {
-    int32_t rng1 = ((rng() % (1 << 29)) << 1) ^ 1;
-    int32_t rng2 = 0;
-
-    ps(rng1, rng2);
-    cout.flush();
-
-    int32_t resp;
-    re(resp);
-
-    if (resp == rng1) {
-      ps(0);
-    } else if (resp == rng2) {
-      ps(1);
-    } else {
-      if (resp & 1) {
-        ps(1);
-      } else {
-        ps(0);
-      }
-    }
-  }
-  cout.flush();
-}
+void solve() {}
 
 int main() {
   setIO();
@@ -202,6 +150,7 @@ int main() {
   re(t);
 
   while (t--) {
+
     solve();
   }
 

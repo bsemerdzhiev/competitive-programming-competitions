@@ -104,7 +104,7 @@ tcT > void re(vector<T> &v) { trav(x, v) re(x); }
 str ts(char c) { return str(1, c); }
 str ts(const char *s) { return (str)s; }
 str ts(str s) { return s; }
-str ts(bool x) { return x ? "1" : "0"; }
+str ts(bool x) { return x ? "YES" : "NO"; }
 
 // output
 tcT > void pr(const T &x) { cout << ts(x); }
@@ -141,58 +141,47 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
+int64_t n, k, a[MAXN], b[MAXN];
+
 void solve() {
-  ps(1);
-  cout.flush();
+  if (k % 2 == 0) {
+    int64_t ss = 0;
+    int64_t min_so_far = 0;
+    int64_t ans = -INF;
 
-  int32_t f_x;
-  re(f_x);
-  f_x ^= 1;
+    FOR(i, 1, n + 1) {
+      ss += a[i];
 
-  if (f_x) {
-    if (f_x & 1) {
-      // first bit was 0
-      ps(0, 1);
-      cout.flush();
-
-      int32_t resp;
-      re(resp);
-
-      ps(resp & 1);
-    } else {
-      int32_t smallest_bit = f_x & (-f_x);
-
-      ps(0, smallest_bit);
-      cout.flush();
-
-      int32_t resp;
-      re(resp);
-
-      ps(!(resp & smallest_bit));
+      ans = max(ans, ss - min_so_far);
+      min_so_far = min(min_so_far, ss);
     }
+    ps(ans);
   } else {
-    int32_t rng1 = ((rng() % (1 << 29)) << 1) ^ 1;
-    int32_t rng2 = 0;
+    int64_t ss = 0;
+    int64_t min_ss = 0;
+    vector<int64_t> bst(n + 1, 0);
+    int64_t ans = -INF;
 
-    ps(rng1, rng2);
-    cout.flush();
+    FOR(i, 1, n + 1) {
+      ss += a[i];
 
-    int32_t resp;
-    re(resp);
-
-    if (resp == rng1) {
-      ps(0);
-    } else if (resp == rng2) {
-      ps(1);
-    } else {
-      if (resp & 1) {
-        ps(1);
-      } else {
-        ps(0);
-      }
+      bst[i] += ss - min_ss - a[i];
+      min_ss = min(min_ss, ss);
     }
+
+    ss = 0;
+    min_ss = 0;
+
+    for (int32_t j = n; j >= 1; j--) {
+      ss += a[j];
+
+      bst[j] += ss - min_ss;
+      ans = max(ans, bst[j] + b[j]);
+      min_ss = min(min_ss, ss);
+    }
+
+    ps(ans);
   }
-  cout.flush();
 }
 
 int main() {
@@ -202,6 +191,10 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n, k);
+    FOR(i, 1, n + 1) { re(a[i]); }
+    FOR(i, 1, n + 1) { re(b[i]); }
+
     solve();
   }
 

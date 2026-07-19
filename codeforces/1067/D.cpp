@@ -104,7 +104,7 @@ tcT > void re(vector<T> &v) { trav(x, v) re(x); }
 str ts(char c) { return str(1, c); }
 str ts(const char *s) { return (str)s; }
 str ts(str s) { return s; }
-str ts(bool x) { return x ? "1" : "0"; }
+str ts(bool x) { return x ? "YES" : "NO"; }
 
 // output
 tcT > void pr(const T &x) { cout << ts(x); }
@@ -141,58 +141,100 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
+int32_t n;
+str a, b;
+
 void solve() {
-  ps(1);
-  cout.flush();
+  map<int32_t, int32_t> map_to;
 
-  int32_t f_x;
-  re(f_x);
-  f_x ^= 1;
+  map_to['1'] = '0';
+  map_to['0'] = '1';
 
-  if (f_x) {
-    if (f_x & 1) {
-      // first bit was 0
-      ps(0, 1);
-      cout.flush();
-
-      int32_t resp;
-      re(resp);
-
-      ps(resp & 1);
+  vpi ans;
+  FOR(i, 0, n - 4) {
+    if (a[i] == b[i]) {
+      continue;
     } else {
-      int32_t smallest_bit = f_x & (-f_x);
+      if (a[i] == a[i + 1]) {
+        ans.push_back(mp(i, i + 1));
+        a[i + 0] = map_to[a[i + 0]];
+        a[i + 1] = map_to[a[i + 1]];
 
-      ps(0, smallest_bit);
-      cout.flush();
+      } else if (a[i] == a[i + 2]) {
+        ans.push_back(mp(i, i + 2));
 
-      int32_t resp;
-      re(resp);
-
-      ps(!(resp & smallest_bit));
-    }
-  } else {
-    int32_t rng1 = ((rng() % (1 << 29)) << 1) ^ 1;
-    int32_t rng2 = 0;
-
-    ps(rng1, rng2);
-    cout.flush();
-
-    int32_t resp;
-    re(resp);
-
-    if (resp == rng1) {
-      ps(0);
-    } else if (resp == rng2) {
-      ps(1);
-    } else {
-      if (resp & 1) {
-        ps(1);
+        a[i + 0] = map_to[a[i + 0]];
+        a[i + 1] = map_to[a[i + 1]];
+        a[i + 2] = map_to[a[i + 2]];
       } else {
-        ps(0);
+        ans.push_back(mp(i + 1, i + 2));
+        a[i + 1] = map_to[a[i + 1]];
+        a[i + 2] = map_to[a[i + 2]];
+
+        ans.push_back(mp(i, i + 1));
+        a[i + 0] = map_to[a[i + 0]];
+        a[i + 1] = map_to[a[i + 1]];
       }
     }
   }
-  cout.flush();
+
+  str rem = std::format("{}{}{}{}", a[n - 4], a[n - 3], a[n - 2], a[n - 1]);
+  str desired = std::format("{}{}{}{}", b[n - 4], b[n - 3], b[n - 2], b[n - 1]);
+
+  struct state {
+    str cur_ss;
+    vpi moves;
+  };
+
+  queue<state> qq;
+  map<str, bool> vis;
+  vis[rem] = 1;
+
+  // DBG(sz(ans));
+
+  qq.push({rem, {}});
+
+  while (!qq.empty()) {
+    auto x = qq.front();
+    qq.pop();
+
+    // DBG(x.cur_ss);
+
+    if (x.cur_ss == desired) {
+      for (auto xx : x.moves) {
+        ans.push_back(xx);
+      }
+      ps(sz(ans));
+      for (auto xx : ans) {
+        ps(xx.first + 1, xx.second + 1);
+      }
+      return;
+    }
+
+    FOR(i, 0, 4) {
+      FOR(j, i + 1, 4) {
+
+        bool not_possible = 0;
+        FOR(z, 0, j - i) {
+          if (x.cur_ss[i + z] != x.cur_ss[j - z]) {
+            not_possible = 1;
+          }
+        }
+        if (!not_possible) {
+          str new_s = x.cur_ss;
+          vpi new_moves = x.moves;
+          new_moves.push_back(mp(n - 4 + i, n - 4 + j));
+
+          FOR(z, i, j + 1) { new_s[z] = map_to[new_s[z]]; }
+
+          if (!vis[new_s]) {
+            qq.push({new_s, new_moves});
+            vis[new_s] = 1;
+          }
+        }
+      }
+    }
+  }
 }
 
 int main() {
@@ -202,6 +244,10 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n);
+    re(a);
+    re(b);
+
     solve();
   }
 

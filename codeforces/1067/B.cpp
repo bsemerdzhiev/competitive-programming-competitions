@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <map>
 
 using namespace std;
 
@@ -39,7 +40,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 4e5 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -104,7 +105,7 @@ tcT > void re(vector<T> &v) { trav(x, v) re(x); }
 str ts(char c) { return str(1, c); }
 str ts(const char *s) { return (str)s; }
 str ts(str s) { return s; }
-str ts(bool x) { return x ? "1" : "0"; }
+str ts(bool x) { return x ? "YES" : "NO"; }
 
 // output
 tcT > void pr(const T &x) { cout << ts(x); }
@@ -141,58 +142,47 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
+int32_t n, a[MAXN];
+
 void solve() {
-  ps(1);
-  cout.flush();
+  map<int32_t, int32_t> cc;
 
-  int32_t f_x;
-  re(f_x);
-  f_x ^= 1;
+  FOR(i, 0, 2 * n) { cc[a[i]]++; }
+  int32_t sm = 0;
 
-  if (f_x) {
-    if (f_x & 1) {
-      // first bit was 0
-      ps(0, 1);
-      cout.flush();
+  int32_t ans = 0;
+  int32_t to_get_later = 0;
 
-      int32_t resp;
-      re(resp);
+  trav(x, cc) {
+    if (x.second % 2 == 0) {
+      int32_t divv = x.second / 2;
 
-      ps(resp & 1);
-    } else {
-      int32_t smallest_bit = f_x & (-f_x);
+      sm += divv;
 
-      ps(0, smallest_bit);
-      cout.flush();
-
-      int32_t resp;
-      re(resp);
-
-      ps(!(resp & smallest_bit));
-    }
-  } else {
-    int32_t rng1 = ((rng() % (1 << 29)) << 1) ^ 1;
-    int32_t rng2 = 0;
-
-    ps(rng1, rng2);
-    cout.flush();
-
-    int32_t resp;
-    re(resp);
-
-    if (resp == rng1) {
-      ps(0);
-    } else if (resp == rng2) {
-      ps(1);
-    } else {
-      if (resp & 1) {
-        ps(1);
+      if (divv % 2 == 1) {
+        ans += 2;
       } else {
-        ps(0);
+        to_get_later++;
       }
+    } else {
+      ans++;
     }
   }
-  cout.flush();
+  //
+
+  if (to_get_later == 1) {
+    if (sm != n) {
+      ans += 2;
+    }
+  } else {
+    ans += to_get_later * 2;
+
+    if (sm == n && to_get_later % 2 == 1) {
+      ans -= 2;
+    }
+  }
+
+  ps(ans);
 }
 
 int main() {
@@ -202,6 +192,10 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n);
+
+    FOR(i, 0, 2 * n) { re(a[i]); }
+
     solve();
   }
 
