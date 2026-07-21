@@ -1,3 +1,4 @@
+
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -39,7 +40,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 1e3 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -141,34 +142,23 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int64_t l, r;
+int32_t n;
+str c[MAXN];
 
 void solve() {
-  int64_t ans = 0;
-  int64_t add_addit = 0;
+  str cc;
 
-  FOR(i, 1, 60) {
-    if (((1LL << (i)) - 1)) {
-      int64_t smallest_with = ((l >> (i)) << (i)) | ((1LL << (i)) - 1);
+  FOR(i,0,n) {
+    str cc1 = c[i] + cc;
+    str cc2 = cc + c[i];
 
-      int64_t biggest_without = (((r >> (i)) << (i)));
-
-      // ps(i, smallest_with, biggest_without ^ ((1LL << i) - 1));
-      if (smallest_with >= l && smallest_with <= r && biggest_without <= r &&
-          biggest_without >= l) {
-        if ((smallest_with ^ ((1LL << (i)) - 1)) >= l &&
-            ((biggest_without ^ ((1LL << (i)) - 1)) <= r)) {
-          ans++;
-          continue;
-        }
-      }
-    }
-    if ((l ^ r) == ((1LL << (i)) - 1) && (l >> (i)) == (r >> (i))) {
-      add_addit++;
+    if (cc1 > cc2) {
+      cc = cc2;
+    } else {
+      cc = cc1;
     }
   }
-  // ps(add_addit, ans);
-  ps((1LL << (ans + add_addit)) - 1);
+  ps(cc);
 }
 
 int main() {
@@ -178,7 +168,8 @@ int main() {
   re(t);
 
   while (t--) {
-    re(l, r);
+    re(n);
+    FOR(i, 0, n) { re(c[i]); }
 
     solve();
   }

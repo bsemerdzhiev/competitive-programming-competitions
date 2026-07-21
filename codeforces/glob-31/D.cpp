@@ -1,3 +1,4 @@
+
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -39,7 +40,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 2e6 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -141,34 +142,43 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int64_t l, r;
+int64_t n, a[MAXN];
 
 void solve() {
-  int64_t ans = 0;
-  int64_t add_addit = 0;
+  if (n == 1) {
+    ps(0);
+    return;
+  }
 
-  FOR(i, 1, 60) {
-    if (((1LL << (i)) - 1)) {
-      int64_t smallest_with = ((l >> (i)) << (i)) | ((1LL << (i)) - 1);
+  int64_t sum = 0;
+  int64_t lower = 0, upper = INF;
+  int64_t cnt = 1;
+  int64_t ans = n - 1;
 
-      int64_t biggest_without = (((r >> (i)) << (i)));
+  FOR(i, 1, n) {
+    // int64_t prev_lower = lower, prev_upper = upper, prev_sum = sum;
+    sum = a[i] - a[i - 1] - sum;
 
-      // ps(i, smallest_with, biggest_without ^ ((1LL << i) - 1));
-      if (smallest_with >= l && smallest_with <= r && biggest_without <= r &&
-          biggest_without >= l) {
-        if ((smallest_with ^ ((1LL << (i)) - 1)) >= l &&
-            ((biggest_without ^ ((1LL << (i)) - 1)) <= r)) {
-          ans++;
-          continue;
-        }
-      }
+    if (cnt % 2 != i % 2) {
+      lower = max(lower, -sum);
+      if (i + 1 < n)
+        upper = min(upper, (a[i + 1] - a[i]) - (sum));
+    } else {
+      upper = min(upper, sum);
+      if (i + 1 < n)
+        lower = max(lower, sum - (a[i + 1] - a[i]));
     }
-    if ((l ^ r) == ((1LL << (i)) - 1) && (l >> (i)) == (r >> (i))) {
-      add_addit++;
+    // ps(i, sum, lower, upper);
+    if (lower >= upper) {
+      cnt = i + 1;
+      lower = 0;
+      upper = INF;
+      sum = 0;
+
+      ans--;
     }
   }
-  // ps(add_addit, ans);
-  ps((1LL << (ans + add_addit)) - 1);
+  ps(ans);
 }
 
 int main() {
@@ -178,7 +188,8 @@ int main() {
   re(t);
 
   while (t--) {
-    re(l, r);
+    re(n);
+    FOR(i, 0, n) { re(a[i]); }
 
     solve();
   }

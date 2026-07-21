@@ -1,4 +1,6 @@
+
 #include <bits/stdc++.h>
+#include <utility>
 
 using namespace std;
 
@@ -141,34 +143,59 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int64_t l, r;
+int64_t n, k;
 
 void solve() {
-  int64_t ans = 0;
-  int64_t add_addit = 0;
+  vi ans(k, 0);
+  vi smaller;
+  vi vv_eq;
+  FOR(i, 0, k) { vv_eq.pb(i); }
 
-  FOR(i, 1, 60) {
-    if (((1LL << (i)) - 1)) {
-      int64_t smallest_with = ((l >> (i)) << (i)) | ((1LL << (i)) - 1);
+  for (int32_t j{30}; j >= 0; j--) {
+    if (n & (1 << j)) {
+      if (sz(smaller) == 0) {
+        if (sz(vv_eq) % 2 == 1) {
+          trav(x, vv_eq) { ans[x] ^= (1 << j); }
+        } else {
+          int32_t to_remove = vv_eq.back();
+          vv_eq.pop_back();
+          trav(x, vv_eq) { ans[x] ^= (1 << j); }
+          smaller.push_back(to_remove);
+        }
+      } else {
+        if ((sz(smaller) + sz(vv_eq)) % 2 == 0) {
+          int32_t from_eq = sz(vv_eq);
 
-      int64_t biggest_without = (((r >> (i)) << (i)));
+          int32_t to_add_later = 0;
+          if (sz(vv_eq)) {
+            to_add_later = vv_eq.back();
+            vv_eq.pop_back();
+          } else {
+            to_add_later = smaller.back();
+            smaller.pop_back();
+          }
 
-      // ps(i, smallest_with, biggest_without ^ ((1LL << i) - 1));
-      if (smallest_with >= l && smallest_with <= r && biggest_without <= r &&
-          biggest_without >= l) {
-        if ((smallest_with ^ ((1LL << (i)) - 1)) >= l &&
-            ((biggest_without ^ ((1LL << (i)) - 1)) <= r)) {
-          ans++;
-          continue;
+          trav(x, smaller) { ans[x] ^= (1 << j); }
+          trav(x, vv_eq) { ans[x] ^= (1 << j); }
+
+          smaller.push_back(to_add_later);
+        } else {
+          trav(x, smaller) { ans[x] ^= (1 << j); }
+          trav(x, vv_eq) { ans[x] ^= (1 << j); }
         }
       }
-    }
-    if ((l ^ r) == ((1LL << (i)) - 1) && (l >> (i)) == (r >> (i))) {
-      add_addit++;
+    } else {
+      for (int32_t z{0}; z < sz(smaller); z++) {
+        if (z % 2 == 0 && z + 1 == sz(smaller)) {
+          break;
+        }
+        ans[smaller[z]] ^= (1 << j);
+      }
     }
   }
-  // ps(add_addit, ans);
-  ps((1LL << (ans + add_addit)) - 1);
+
+  trav(x, ans) { pr(x, " "); }
+  ps();
 }
 
 int main() {
@@ -178,7 +205,7 @@ int main() {
   re(t);
 
   while (t--) {
-    re(l, r);
+    re(n, k);
 
     solve();
   }

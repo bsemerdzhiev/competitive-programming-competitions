@@ -1,3 +1,4 @@
+
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -141,34 +142,23 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int64_t l, r;
+int32_t n, a, b;
+int32_t c[MAXN];
 
 void solve() {
-  int64_t ans = 0;
-  int64_t add_addit = 0;
+  int32_t cur = a;
+  int32_t ans = a;
+  vi vis(n, 0);
 
-  FOR(i, 1, 60) {
-    if (((1LL << (i)) - 1)) {
-      int64_t smallest_with = ((l >> (i)) << (i)) | ((1LL << (i)) - 1);
+  while (!vis[cur]) {
+    vis[cur] = 1;
 
-      int64_t biggest_without = (((r >> (i)) << (i)));
+    ans = max(ans, cur);
 
-      // ps(i, smallest_with, biggest_without ^ ((1LL << i) - 1));
-      if (smallest_with >= l && smallest_with <= r && biggest_without <= r &&
-          biggest_without >= l) {
-        if ((smallest_with ^ ((1LL << (i)) - 1)) >= l &&
-            ((biggest_without ^ ((1LL << (i)) - 1)) <= r)) {
-          ans++;
-          continue;
-        }
-      }
-    }
-    if ((l ^ r) == ((1LL << (i)) - 1) && (l >> (i)) == (r >> (i))) {
-      add_addit++;
-    }
+    cur += b;
+    cur %= n;
   }
-  // ps(add_addit, ans);
-  ps((1LL << (ans + add_addit)) - 1);
+  ps(ans);
 }
 
 int main() {
@@ -178,7 +168,8 @@ int main() {
   re(t);
 
   while (t--) {
-    re(l, r);
+    re(n, a, b);
+    // FOR(i, 0, n) { re(c[i]); }
 
     solve();
   }
