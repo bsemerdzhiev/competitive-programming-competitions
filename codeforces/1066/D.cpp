@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <regex>
 
 using namespace std;
 
@@ -141,32 +142,57 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int64_t l, r;
+int64_t n, l, r;
+int64_t a[MAXN];
 
 void solve() {
-  int64_t ans = 0;
-  int64_t add_addit = 0;
+  int64_t ans = INF;
 
-  FOR(i, 1, 60) {
-    if (((1LL << (i)) - 1)) {
-      int64_t smallest_with = ((l >> (i)) << (i)) | ((1LL << (i)) - 1);
+  sort(a, a + n);
 
-      int64_t biggest_without = (((r >> (i)) << (i)));
+  vector<int64_t> vv;
+  FOR(i, 0, n) { vv.push_back(a[i]); }
 
-      if (smallest_with >= l && smallest_with <= r && biggest_without <= r &&
-          biggest_without >= l) {
-        if ((smallest_with ^ ((1LL << (i)) - 1)) >= l &&
-            ((biggest_without ^ ((1LL << (i)) - 1)) <= r)) {
-          ans++;
-          continue;
-        }
-      }
-    }
-    if ((l ^ r) == ((1LL << (i)) - 1) && (l >> (i)) == (r >> (i))) {
-      add_addit++;
+  sort(vv.begin(), vv.end());
+
+  int64_t sum = 0;
+  int64_t sum_smaller = 0;
+  int64_t cnt_smaller = 0;
+
+  FOR(i, 0, n) {
+    if (a[i] < l) {
+      sum_smaller += a[i];
+      cnt_smaller++;
+    } else {
+      sum += a[i];
     }
   }
-  ps((1LL << (ans + add_addit)) - 1);
+
+  ans =
+      min(ans, (cnt_smaller * l) - sum_smaller + (sum - (n - cnt_smaller) * l));
+
+  trav(x, vv) {
+    if (x > r)
+      break;
+
+    if (x < l) {
+      continue;
+    }
+
+    // ps(cnt_smaller, sum_smaller, sum);
+    ans = min(ans,
+              (cnt_smaller * x) - sum_smaller + (sum - (n - cnt_smaller) * x));
+
+    cnt_smaller++;
+
+    sum_smaller += x;
+    sum -= x;
+  }
+
+  ans =
+      min(ans, (cnt_smaller * r) - sum_smaller + (sum - (n - cnt_smaller) * r));
+
+  ps(ans);
 }
 
 int main() {
@@ -176,7 +202,9 @@ int main() {
   re(t);
 
   while (t--) {
-    re(l, r);
+    re(n, l, r);
+
+    FOR(i, 0, n) { re(a[i]); }
 
     solve();
   }

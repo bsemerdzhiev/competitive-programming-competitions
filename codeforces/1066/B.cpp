@@ -141,32 +141,24 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int64_t l, r;
+int32_t n, x, y;
+str a;
 
 void solve() {
-  int64_t ans = 0;
-  int64_t add_addit = 0;
-
-  FOR(i, 1, 60) {
-    if (((1LL << (i)) - 1)) {
-      int64_t smallest_with = ((l >> (i)) << (i)) | ((1LL << (i)) - 1);
-
-      int64_t biggest_without = (((r >> (i)) << (i)));
-
-      if (smallest_with >= l && smallest_with <= r && biggest_without <= r &&
-          biggest_without >= l) {
-        if ((smallest_with ^ ((1LL << (i)) - 1)) >= l &&
-            ((biggest_without ^ ((1LL << (i)) - 1)) <= r)) {
-          ans++;
-          continue;
-        }
-      }
-    }
-    if ((l ^ r) == ((1LL << (i)) - 1) && (l >> (i)) == (r >> (i))) {
-      add_addit++;
+  int32_t to_add_diag = 0;
+  trav(x, a) {
+    if (x == '8') {
+      to_add_diag++;
     }
   }
-  ps((1LL << (ans + add_addit)) - 1);
+  if (max(abs(x), abs(y)) > n) {
+    ps("NO");
+    return;
+  }
+
+  int32_t dist = abs(x) + abs(y);
+
+  ps(n + to_add_diag >= dist);
 }
 
 int main() {
@@ -176,7 +168,8 @@ int main() {
   re(t);
 
   while (t--) {
-    re(l, r);
+    re(n, x, y);
+    re(a);
 
     solve();
   }

@@ -39,7 +39,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 1e6 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -141,32 +141,71 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int64_t l, r;
+int32_t n, k, a[MAXN];
+int32_t cc[MAXN], cur_cc[MAXN];
+int32_t fin_set[MAXN];
 
-void solve() {
-  int64_t ans = 0;
-  int64_t add_addit = 0;
+bool check(int32_t x) {
+  FOR(j, 0, 3 * n + 1) { fin_set[j] = 0; }
+  FOR(j, 0, 3 * n + 1) { cur_cc[j] = cc[j]; }
 
-  FOR(i, 1, 60) {
-    if (((1LL << (i)) - 1)) {
-      int64_t smallest_with = ((l >> (i)) << (i)) | ((1LL << (i)) - 1);
+  stack<int32_t> zeroes;
 
-      int64_t biggest_without = (((r >> (i)) << (i)));
+  for (int32_t j = 2 * n + x; j >= 1; j--) {
+    if (cur_cc[j] == 0) {
+      zeroes.push(j);
+    } else {
+      int32_t used = 1;
 
-      if (smallest_with >= l && smallest_with <= r && biggest_without <= r &&
-          biggest_without >= l) {
-        if ((smallest_with ^ ((1LL << (i)) - 1)) >= l &&
-            ((biggest_without ^ ((1LL << (i)) - 1)) <= r)) {
-          ans++;
+      cur_cc[j]--;
+      fin_set[j] = 1;
+
+      while (sz(zeroes) > 0 && cur_cc[j]) {
+        if (zeroes.top() - j > x) {
+          zeroes.pop();
           continue;
         }
+
+        used++;
+        fin_set[zeroes.top()]++;
+
+        cur_cc[j]--;
+        zeroes.pop();
+
+        if (used == x + 1) {
+          break;
+        }
       }
-    }
-    if ((l ^ r) == ((1LL << (i)) - 1) && (l >> (i)) == (r >> (i))) {
-      add_addit++;
+
+      fin_set[j + x] += cur_cc[j];
     }
   }
-  ps((1LL << (ans + add_addit)) - 1);
+  FOR(i, 0, 3 * n) {
+    if (fin_set[i] > k) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void solve() {
+  FOR(i, 0, 3 * n + 1) { cc[i] = 0; }
+  FOR(i, 0, n) { cc[a[i]]++; }
+
+  int32_t l = 0, r = n;
+  int32_t ans = 0;
+
+  while (l <= r) {
+    int32_t middle = (l + r) >> 1;
+
+    if (check(middle)) {
+      ans = middle;
+      r = middle - 1;
+    } else {
+      l = middle + 1;
+    }
+  }
+  ps(ans);
 }
 
 int main() {
@@ -176,7 +215,8 @@ int main() {
   re(t);
 
   while (t--) {
-    re(l, r);
+    re(n, k);
+    FOR(i, 0, n) { re(a[i]); }
 
     solve();
   }

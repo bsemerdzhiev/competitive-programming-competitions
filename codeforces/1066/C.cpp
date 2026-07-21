@@ -141,32 +141,72 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int64_t l, r;
+int32_t n, k, q;
+int32_t c[MAXN], l[MAXN], r[MAXN];
 
 void solve() {
-  int64_t ans = 0;
-  int64_t add_addit = 0;
+  vi mark_mex(n + 1, 0);
+  vi mark_min(n + 1, 0);
 
-  FOR(i, 1, 60) {
-    if (((1LL << (i)) - 1)) {
-      int64_t smallest_with = ((l >> (i)) << (i)) | ((1LL << (i)) - 1);
+  vi ans(n + 1, 3 * k);
 
-      int64_t biggest_without = (((r >> (i)) << (i)));
+  FOR(i, 0, q) {
+    re(c[i], l[i], r[i]);
+    if (c[i] == 1) {
+      FOR(z, l[i], r[i] + 1) { mark_min[z] = 1; }
+    } else {
+      FOR(z, l[i], r[i] + 1) { mark_mex[z] = 1; }
+    }
+  }
 
-      if (smallest_with >= l && smallest_with <= r && biggest_without <= r &&
-          biggest_without >= l) {
-        if ((smallest_with ^ ((1LL << (i)) - 1)) >= l &&
-            ((biggest_without ^ ((1LL << (i)) - 1)) <= r)) {
-          ans++;
-          continue;
+  vpi indeces;
+  FOR(i, 0, q) {
+
+    if (c[i] == 2) {
+      indeces.pb(mp(l[i], r[i]));
+    } else {
+      FOR(j, l[i], r[i] + 1) {
+        if (!mark_mex[j]) {
+          ans[j] = k;
         }
       }
     }
-    if ((l ^ r) == ((1LL << (i)) - 1) && (l >> (i)) == (r >> (i))) {
-      add_addit++;
+  }
+
+  sort(indeces.begin(), indeces.end());
+  trav(x, indeces) {
+    set<int32_t> ss;
+    FOR(j, x.first, x.second + 1) {
+      if (mark_min[j])
+        continue;
+
+      if (ans[j] != 3 * k) {
+        ss.insert(ans[j]);
+      }
+    }
+    FOR(j, x.first, x.second + 1) {
+      if (mark_min[j])
+        continue;
+      if (ans[j] == 3 * k) {
+        int32_t kk = 0;
+        for (;;) {
+          if (ss.count(kk) == 0) {
+            break;
+          } else {
+            kk++;
+          }
+        }
+        if (kk == k) {
+          break;
+        }
+        ans[j] = kk;
+        ss.insert(kk);
+      }
     }
   }
-  ps((1LL << (ans + add_addit)) - 1);
+
+  FOR(z, 1, n + 1) { pr(ans[z], " "); }
+  ps();
 }
 
 int main() {
@@ -176,7 +216,7 @@ int main() {
   re(t);
 
   while (t--) {
-    re(l, r);
+    re(n, k, q);
 
     solve();
   }
