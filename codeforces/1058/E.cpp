@@ -142,88 +142,62 @@ tcTUU > void DBG(const T &t, const U &...u) {
 }
 
 int32_t n, m;
-vector<str> a;
+vector<str> a[2];
+bool flipped;
 
 void solve() {
-  vector<vector<vi>> row_left_add, row_right_remove, row_up_remove,
-      row_up_remove_right;
-
-  row_left_add.resize(n + 1);
-  row_right_remove.resize(n + 1);
-  row_up_remove.resize(n + 1);
-  row_up_remove_right.resize(n + 1);
-
+  vector<vector<vi>> best_calc;
+  best_calc.resize(n);
   FOR(i, 0, n) {
-    row_left_add[i].resize(m + 1);
-    row_right_remove[i].resize(m + 1);
-    row_up_remove[i].resize(m + 1);
-    row_up_remove_right[i].resize(m + 1);
-  }
-
-  vector<vi> is_paired;
-  is_paired.resize(m);
-  FOR(j, 0, m) {
-    is_paired[j].resize(m);
-    FOR(z, 0, m) { is_paired[j][z] = -1; }
+    best_calc[i].resize(n);
+    FOR(j, 0, n) { best_calc[i][j] = vector<int32_t>(m, 1e9); }
   }
 
   FOR(i, 0, n) {
-    FOR(j, 1, m) {
-      if (a[i][j] != '1')
-        continue;
+    FOR(j, 0, i) {
+      int32_t prev = -1;
+      FOR(z, 0, m) {
+        if (a[flipped][i][z] == a[flipped][j][z] && a[flipped][j][z] == '1') {
+          if (prev != -1) {
+            int32_t new_rect_size = (i - j + 1) * (z - prev + 1);
 
-      FOR(z, 0, j) {
-        if (a[i][z] == '1') {
-          if (is_paired[z][j] != -1) {
-            int32_t rect_size = (j - z + 1) * (i - is_paired[z][j] + 1);
-
-            row_left_add[i][z].pb(rect_size);
-            if (j + 1 < m) {
-              row_right_remove[i][j + 1].pb(rect_size);
-            }
-
-            if (is_paired[z][j] - 1 >= 0) {
-              row_up_remove[is_paired[z][j] - 1][z].pb(rect_size);
-              if (j + 1 < m) {
-                row_up_remove_right[is_paired[z][j] - 1][j + 1].pb(rect_size);
-              }
+            FOR(g, prev, z + 1) {
+              best_calc[j][i][g] = min(best_calc[j][i][g], new_rect_size);
             }
           }
-          is_paired[z][j] = i;
+          prev = z;
         }
       }
     }
   }
-  // return;
-  vector<vi> ans(n + 1);
-  FOR(i, 0, n) { ans[i].resize(m + 1, 1e9); }
+  FOR(z, 0, n) {
+    for (int32_t j = n - 1; j >= z; j--) {
+      FOR(i, 0, m) {
+        if (z - 1 >= 0) {
+          best_calc[z][j][i] = min(best_calc[z][j][i], best_calc[z - 1][j][i]);
+        }
 
-  vector<multiset<int32_t>> cur_ss;
-  cur_ss.resize(m + 1);
-
-  for (int32_t i = n - 1; i >= 0; i--) {
-    multiset<int32_t> cur_adds;
-    multiset<int32_t> cur_erases;
-    for (int32_t j = 0; j < m; j++) {
-      trav(x, row_left_add[i][j]) { cur_adds.insert(x); }
-      trav(x, row_right_remove[i][j]) { cur_adds.erase(cur_adds.find(x)); }
-      trav(x, row_up_remove[i][j]) { cur_erases.ins(x); }
-      trav(x, row_up_remove_right[i][j]) {
-        cur_erases.erase(cur_erases.find(x));
-      }
-
-      trav(x, cur_adds) { cur_ss[j].insert(x); }
-      trav(x, cur_erases) { cur_ss[j].erase(cur_ss[j].find(x)); }
-
-      if (!cur_ss[j].empty()) {
-        ans[i][j] = *cur_ss[j].begin();
+        if (j + 1 < n) {
+          best_calc[z][j][i] = min(best_calc[z][j][i], best_calc[z][j + 1][i]);
+        }
       }
     }
   }
 
-  FOR(i, 0, n) {
-    FOR(j, 0, m) { pr(ans[i][j] == 1e9 ? 0 : ans[i][j], " "); }
-    ps();
+  if (flipped) {
+    FOR(i, 0, m) {
+      FOR(j, 0, n) {
+        pr(best_calc[j][j][i] == 1e9 ? 0 : best_calc[j][j][i], " ");
+      }
+      ps();
+    }
+  } else {
+    FOR(i, 0, n) {
+      FOR(j, 0, m) {
+        pr(best_calc[i][i][j] == 1e9 ? 0 : best_calc[i][i][j], " ");
+      }
+      ps();
+    }
   }
 }
 
@@ -235,8 +209,21 @@ int main() {
 
   while (t--) {
     re(n, m);
-    a.resize(n);
-    FOR(i, 0, n) { re(a[i]); }
+    a[0].resize(n);
+    a[1].resize(m);
+
+    FOR(i, 0, n) { re(a[0][i]); }
+    FOR(j, 0, m) {
+      a[1][j] = str(n, '0');
+      FOR(i, 0, n) { a[1][j][i] = a[0][i][j]; }
+    }
+
+    if (n >= m) {
+      swap(n, m);
+      flipped = 1;
+    } else {
+      flipped = 0;
+    }
 
     solve();
   }
