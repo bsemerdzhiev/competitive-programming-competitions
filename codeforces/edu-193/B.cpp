@@ -144,7 +144,49 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n, a[MAXN];
+
+void solve() {
+  vpi prev;
+
+  int64_t ans = 0;
+  for (int32_t i{0}; i < n; i++) {
+    int32_t new_ind = n;
+
+    int32_t cnt = 0;
+    for (int32_t j{i}; j < n; j++) {
+      if (a[j] != a[i]) {
+        new_ind = j;
+        break;
+      }
+      cnt++;
+    }
+
+    ans += cnt - 1;
+    prev.pb(mp(a[i], cnt > 1));
+    i = new_ind - 1;
+  }
+
+  int32_t can_reduce = 0;
+  if (sz(prev) >= 2) {
+    can_reduce = max(prev[1].second, prev[sz(prev) - 2].second);
+  }
+
+  for (int32_t i{2}; i < sz(prev); i++) {
+    if ((prev[i].second || prev[i - 2].second) &&
+        prev[i].first != prev[i - 2].first) {
+      can_reduce = 1;
+    }
+  }
+  for (int32_t i{1}; i < sz(prev); i++) {
+    if (prev[i].second && prev[i - 1].second) {
+      can_reduce = 2;
+      break;
+    }
+  }
+
+  ps(n - (ans - can_reduce));
+}
 
 int main() {
   setIO();
@@ -153,6 +195,8 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n);
+    FOR(i, 0, n) { re(a[i]); }
 
     solve();
   }

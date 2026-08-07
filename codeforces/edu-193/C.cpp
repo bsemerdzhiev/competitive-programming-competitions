@@ -144,7 +144,91 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int64_t n, m, x, y, a[2][MAXN];
+
+void solve() {
+  reverse(a[0], a[0] + x);
+  reverse(a[1], a[1] + y);
+  int64_t best_ans = 0;
+  FOR(z, 0, 2) {
+    unordered_set<int64_t> ss, ss2;
+
+    int64_t cur_ans = 0;
+    FOR(i, 0, min(x, n - 1)) {
+      ss.insert(a[z][i]);
+      cur_ans += a[z][i];
+    }
+
+    int32_t add = 0;
+    FOR(i, 0, min(y, m)) {
+      if (ss.count(a[z ^ 1][i])) {
+        add++;
+      } else {
+        cur_ans += a[z ^ 1][i];
+      }
+      ss2.insert(a[z ^ 1][i]);
+    }
+
+    int32_t ll = sz(ss), rr = sz(ss2);
+
+    while (add) {
+      if (ll == x && rr == y) {
+        break;
+      }
+
+      if (ll == x) {
+        if (ss.count(a[z ^ 1][rr])) {
+          add++;
+        } else {
+          cur_ans += a[z ^ 1][rr];
+        }
+        ss2.insert(a[z ^ 1][rr]);
+
+        rr++;
+        add--;
+        continue;
+      } else if (rr == y) {
+        if (ss2.count(a[z][ll])) {
+          add++;
+        } else {
+          cur_ans += a[z][ll];
+        }
+
+        ss.insert(a[z][ll]);
+        ll++;
+        add--;
+        continue;
+      } else {
+        if (a[z][ll] > a[z ^ 1][rr]) {
+          if (ss2.count(a[z][ll])) {
+            add++;
+          } else {
+            cur_ans += a[z][ll];
+          }
+
+          ss.insert(a[z][ll]);
+          ll++;
+          add--;
+        } else {
+          if (ss.count(a[z ^ 1][rr])) {
+            add++;
+          } else {
+            cur_ans += a[z ^ 1][rr];
+          }
+          ss2.insert(a[z ^ 1][rr]);
+
+          rr++;
+          add--;
+        }
+      }
+    }
+    best_ans = max(best_ans, cur_ans);
+
+    swap(n, m);
+    swap(x, y);
+  }
+  ps(best_ans);
+}
 
 int main() {
   setIO();
@@ -153,6 +237,10 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n, m, x, y);
+
+    FOR(i, 0, x) { re(a[0][i]); }
+    FOR(i, 0, y) { re(a[1][i]); }
 
     solve();
   }

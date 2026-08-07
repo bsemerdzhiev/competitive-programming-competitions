@@ -144,7 +144,57 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int64_t x, y;
+
+bool check(int32_t to_start) {
+  int64_t p = 0, q = 0;
+
+  for (int32_t i{to_start}; i >= 1; i--) {
+    if (max(x - p, y - q) < i) {
+      return false;
+    }
+    if (x - p > y - q) {
+      p += i;
+    } else {
+      q += i;
+    }
+  }
+  return true;
+}
+
+void solve() {
+  int64_t l = 0, r = 20001;
+
+  // ps(check(1));
+  int64_t ans = 0;
+  while (l <= r) {
+    int64_t middle = (l + r) >> 1;
+
+    if (check(middle)) {
+      ans = middle;
+      l = middle + 1;
+    } else {
+      r = middle - 1;
+    }
+  }
+
+  vector<char> answer(ans, 0);
+
+  int64_t p = 0, q = 0;
+
+  int64_t k = 0;
+  for (int64_t i{ans}; i >= 1; i--) {
+    if (x - p > y - q) {
+      answer[k++] = 'X';
+      p += i;
+    } else {
+      answer[k++] = 'Y';
+      q += i;
+    }
+  }
+  FOR(i, 0, ans) { pr(answer[i]); }
+  ps();
+}
 
 int main() {
   setIO();
@@ -153,6 +203,7 @@ int main() {
   re(t);
 
   while (t--) {
+    re(x, y);
 
     solve();
   }

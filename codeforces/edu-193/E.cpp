@@ -42,7 +42,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 1e6 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -144,7 +144,105 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n;
+vi graph[MAXN];
+int32_t lvl[MAXN];
+bool mark[MAXN];
+
+int32_t dfs(int32_t v, int32_t p, int32_t dist) {
+  int32_t cur = dist;
+  lvl[v] = dist;
+  trav(x, graph[v]) {
+    if (x == p || mark[x])
+      continue;
+    cur = max(cur, dfs(x, v, dist + 1));
+  }
+  return cur;
+}
+
+bool dfs_mark(int32_t v, int32_t p, int32_t cur_dist, set<int32_t> &to_add) {
+  int32_t should_add = 0;
+
+  trav(x, graph[v]) {
+    if (x == p || mark[x]) {
+      continue;
+    }
+    if (dfs_mark(x, v, cur_dist - 1, to_add)) {
+      should_add++;
+    }
+  }
+  if (should_add > 1) {
+    to_add.ins(cur_dist);
+  }
+  return cur_dist == 0 || should_add;
+}
+
+void solve() {
+  FOR(i, 1, n + 1) {
+    lvl[i] = 0;
+    mark[i] = 0;
+  }
+  dfs(1, 1, 0);
+
+  int32_t farthest = 1;
+  FOR(i, 1, n + 1) {
+    if (lvl[i] > lvl[farthest]) {
+      farthest = i;
+    }
+  }
+  FOR(i, 1, n + 1) { lvl[i] = 0; }
+  int32_t diag = dfs(farthest, farthest, 0);
+
+  int32_t node_a = farthest;
+  int32_t node_b = farthest;
+
+  FOR(i, 1, n + 1) {
+    if (lvl[i] > lvl[node_b]) {
+      node_b = i;
+    }
+  }
+
+  int32_t v = node_b;
+
+  vi my_nodes;
+  while (v != node_a) {
+    my_nodes.pb(v);
+    trav(x, graph[v]) {
+      if (lvl[x] + 1 == lvl[v]) {
+        v = x;
+        break;
+      }
+    }
+  }
+  my_nodes.pb(node_a);
+  set<int32_t> vv[2];
+
+  for (int32_t i{0}; i < sz(my_nodes); i++) {
+    if (i + 1 == (diag + 1) / 2) {
+      mark[my_nodes[i]] = mark[my_nodes[i + 1]] = 1;
+      FOR(i, 1, n + 1) { lvl[i] = 0; }
+
+      dfs_mark(my_nodes[i], my_nodes[i], diag / 2, vv[0]);
+
+      FOR(i, 1, n + 1) { lvl[i] = 0; }
+
+      dfs_mark(my_nodes[i + 1], my_nodes[i + 1], diag / 2, vv[1]);
+
+      break;
+    }
+  }
+
+  vv[0].ins(0);
+  vv[1].ins(0);
+
+  set<int32_t> ss;
+  trav(x, vv[0]) {
+    trav(z, vv[1]) { ss.insert(diag - x - z); }
+  }
+  pr(sz(ss), " ");
+  trav(x, ss) { pr(x, " "); }
+  ps();
+}
 
 int main() {
   setIO();
@@ -153,6 +251,15 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n);
+    FOR(i, 1, n + 1) { graph[i].clear(); }
+
+    int32_t v, w;
+    FOR(i, 0, n - 1) {
+      re(v, w);
+      graph[v].pb(w);
+      graph[w].pb(v);
+    }
 
     solve();
   }

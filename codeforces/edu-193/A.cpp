@@ -144,7 +144,19 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n;
+
+void solve() {
+  FOR(j, 2, sqrt(n + 1) + 5) {
+    if (j == (n + 1))
+      break;
+    if ((n + 1) % j == 0) {
+      ps("NO");
+      return;
+    }
+  }
+  ps("YES");
+}
 
 int main() {
   setIO();
@@ -153,6 +165,7 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n);
 
     solve();
   }
