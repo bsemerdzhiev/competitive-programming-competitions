@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <cstdint>
 
 using namespace std;
 
@@ -144,7 +145,79 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n, v[MAXN], a[MAXN], b[MAXN];
+int64_t tree[tSZ], lazy[tSZ];
+
+void push_down(int32_t k, int32_t l, int32_t r) {
+  if (lazy[k] != 0) {
+    tree[k] += lazy[k];
+
+    if (l != r) {
+      lazy[k << 1] += lazy[k];
+      lazy[k << 1 | 1] += lazy[k];
+    }
+    lazy[k] = 0;
+  }
+}
+
+void update(int32_t k, int32_t l, int32_t r, int32_t i, int32_t j,
+            int64_t val) {
+  push_down(k, l, r);
+  if (r < i || l > j) {
+    return;
+  }
+
+  if (l >= i && r <= j) {
+    lazy[k] += val;
+    push_down(k, l, r);
+
+    return;
+  }
+  int32_t middle = (l + r) >> 1;
+
+  update(k << 1, l, middle, i, j, val);
+  update(k << 1 | 1, middle + 1, r, i, j, val);
+
+  tree[k] = max(tree[k << 1], tree[k << 1 | 1]);
+}
+
+int64_t query(int32_t k, int32_t l, int32_t r, int32_t i, int32_t j) {
+  push_down(k, l, r);
+  if (r < i || l > j) {
+    return -1e16;
+  }
+
+  if (r <= j && l >= i) {
+    return tree[k];
+  }
+
+  int32_t middle = (l + r) >> 1;
+
+  return max(query(k << 1, l, middle, i, j),
+             query(k << 1 | 1, middle + 1, r, i, j));
+}
+
+void solve() {
+  FOR(i, 0, 3 * n) { tree[i] = lazy[i] = 0; }
+  FOR(i, 1, n + 1) { update(1, 0, n, i, i, -1e14); }
+  map<int32_t, int32_t> pos;
+
+  FOR(i, 1, n + 1) { pos[b[i]] = i; }
+
+  for (int32_t i{1}; i <= n; i++) {
+    int64_t cur_ans_without = query(1, 0, n, 0, pos[a[i]]);
+
+    update(1, 0, n, 0, pos[a[i]] - 1, v[a[i]]);
+
+    int64_t cur_val = query(1, 0, n, pos[a[i]], pos[a[i]]);
+    update(1, 0, n, pos[a[i]], pos[a[i]], -cur_val);
+
+    update(1, 0, n, pos[a[i]], pos[a[i]], cur_ans_without);
+  }
+  int64_t ans = 0;
+  FOR(i, 0, n + 1) { ans = max(ans, query(1, 0, n, i, i)); }
+  ps(ans);
+}
 
 int main() {
   setIO();
@@ -153,6 +226,11 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n);
+
+    FOR(i, 1, n + 1) { re(v[i]); }
+    FOR(i, 1, n + 1) { re(a[i]); }
+    FOR(i, 1, n + 1) { re(b[i]); }
 
     solve();
   }
