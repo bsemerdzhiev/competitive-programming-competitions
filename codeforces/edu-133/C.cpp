@@ -1,46 +1,37 @@
-/*
- * がんばって
-*/
-
+#include <algorithm>
 #include <bits/stdc++.h>
+#include <cstdint>
 
 using namespace std;
 
-//basic types
-using ll = long long;
-using ld = long double;
+using pi = std::pair<int32_t, int32_t>;
+using pl = std::pair<int64_t, int64_t>;
+using vi = std::vector<int32_t>;
+using vl = std::vector<int64_t>;
+using vpi = std::vector<pi>;
+using vpl = std::vector<pl>;
+using str = std::string;
 using db = double;
-using str = string;
+using ld = long double;
 
-using pi = pair<int,int>;
-using pl = pair<ll,ll>;
-using pd = pair<db,db>;
-
-using vi = vector<int>;
-using vb = vector<bool>;
-using vl = vector<ll>;
-using vd = vector<db>;
-using vs = vector<str>;
-using vpi = vector<pi>;
-using vpl = vector<pl>;
-using vpd = vector<pd>;
-
-#define tcT template<class T
+// templates
+#define tcT template <class T
 #define tcTU tcT, class U
-
-tcT> using V = vector<T>; 
-tcT, size_t SZ> using AR = array<T,SZ>; 
-tcT> using PR = pair<T,T>;
+#define tcTUU tcT, class... U
 
 // pairs
 #define mp make_pair
 #define f first
 #define s second
 
-// for vectors
-#define sz(x) (int)(x).size()
-#define all(x) begin(x), end(x)
-#define rall(x) (x).rbegin(), (x).rend()
+// loops
+#define FOR(i, a, b) for (int32_t i = (a); i < (b); i++)
+#define ROF(i, a, b) for (int32_t i = (b) - 1; i >= (a); i--)
+#define trav(a, x) for (auto &(a) : (x))
+
+// vectors
+#define sz(a) (int32_t)(a).size()
+#define all(x) (x).begin(), (x).end()
 #define sor(x) sort(all(x))
 #define rsz resize
 #define ins insert
@@ -52,185 +43,195 @@ tcT> using PR = pair<T,T>;
 #define lb lower_bound
 #define ub upper_bound
 
-// loops
-#define FOR(i,a,b) for (int i = (a); i < (b); i++)
-#define F0R(i,a) FOR(i,0,a)
-#define ROF(i,a,b) for (int i = (b)-1; i >= (a); i++)
-#define R0F(i,a) ROF(i,0,a)
-#define trav(a,x) for (auto& a: x)
+const int32_t MOD = 998244353;
+const int32_t MAXN = 2e5 + 5;
+const int64_t INF = 1e18;
+const double PI = acos(-1);
+const int32_t tSZ = (1 << 21);
+const int32_t dx[4] = {1, 0, -1, 0}, dy[4] = {0, 1, 0, -1}; // for grid problems
+mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
 
-const int MOD = 1e9+7;
-const int mxN = 2e5+5;
-const ll INF = 1e18;
-const ld PI = acos((ld)-1);
-const int tSZ = (1 << 21);
-const int dx[4] = {1,0,-1,0}, dy[4] = {0,1,0,-1}; // for grid problems
-mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count()); 
-
-// useful functions
 constexpr int pcnt(int x) { return __builtin_popcount(x); } // number of bits
-constexpr int bits(int x) { return 31-__builtin_clz(x); } // log2(x) rounded down
-ll cdiv(ll a, ll b) { return a/b+((a^b)>0&&a%b); } // divide a by b rounded up
-ll fdiv(ll a, ll b) { return a/b-((a^b)<0&&a%b); } // divide a by b rounded down
 
-// functions for working with MOD
-ll add(ll f, ll s){ f += s; if(f >= MOD) f %= MOD; if(f < 0) f += MOD;	return f; } // add f to s and make sure it's in range
-ll mul(ll f, ll s){ f *= s; if(f >= MOD) f %= MOD; return f;} // multiply f and s and make sure it's in range
-ll pw(ll x, ll y) { ll ans = 1, ml = x; while(y) { if(y & 1) ans = mul(ans, ml); ml = mul(ml, ml);	y >>= 1; } return ans; } // number x to a power y
-ll inv(ll x) { return pw(x, MOD - 2); } //inversion of a number
+namespace MO {
+int32_t add(int64_t x, int64_t y) {
+  return ((x % MOD) + (y % MOD) + MOD) % MOD;
+}
+int32_t mul(int64_t x, int64_t y) { return ((x % MOD) * (y % MOD)) % MOD; }
 
-tcT> void remDup(vector<T>& x) { // sort and remove duplicates
-	sort(all(x)); x.erase(unique(all(x)),end(x)); }
-tcTU> void erase(T& x, const U& v) {
-	auto it = x.find(v); assert(it != end(x));
-	x.erase(v); }
+int32_t pow(int32_t x, int32_t y) {
+  int32_t res = 1;
 
-// Input
-#define tcTUU tcT, class ...U
-tcT> void re(complex<T>& c);
-tcTU> void re(pair<T,U>& p);
-tcT> void re(vector<T>& v);
-tcT, size_t SZ> void re(array<T,SZ>& a);
+  while (y) {
+    if (y & 1) {
+      res = mul(res, x);
+    }
+    x = mul(x, x);
+    y >>= 1;
+  }
+  return res;
+}
 
-tcT> void re(T& x) { cin >> x; }
-void re(db& d) { str t; re(t); d = stod(t); }
-void re(ld& d) { str t; re(t); d = stold(t); }
-tcTUU> void re(T& t, U&... u) { re(t); re(u...); }
- 
-tcT> void re(complex<T>& c) { T a,b; re(a,b); c = {a,b}; }
-tcTU> void re(pair<T,U>& p) { re(p.f,p.s); }
-tcT> void re(vector<T>& x) { trav(a,x) re(a); }
-tcT, size_t SZ> void re(array<T,SZ>& x) { trav(a,x) re(a); }
-tcT> void rv(int& n, vector<T>& x) { re(n); x.rsz(n); trav(a,x) re(a); }
+int32_t inverse(int32_t x) { return pow(x, MOD - 2); }
+}; // namespace MO
 
-// To_String
+// input
+tcT > void re(complex<T> &c);
+tcTU > void re(pair<T, U> &p);
+tcT > void re(vector<T> &v);
+
+tcT > void re(T &x) { cin >> x; }
+void re(db &d) {
+  str t;
+  cin >> t;
+  d = stod(t);
+}
+void re(ld &d) {
+  str t;
+  cin >> t;
+  d = stold(t);
+}
+tcTUU > void re(T &x, U &...u) {
+  re(x);
+  re(u...);
+}
+
+tcT > void re(complex<T> &x) {
+  T a, b;
+  re(a, b);
+  x = {a, b};
+}
+tcTU > void re(pair<T, U> &p) { re(p.f, p.s); }
+tcT > void re(vector<T> &v) { trav(x, v) re(x); }
+
+// to string
 #define ts to_string
-str ts(char c) { return str(1,c); }
-str ts(const char* s) { return (str)s; }
+str ts(char c) { return str(1, c); }
+str ts(const char *s) { return (str)s; }
 str ts(str s) { return s; }
-str ts(bool b) { 
-	#ifdef LOCAL
-		return b ? "true" : "false"; 
-	#else 
-		return ts((int)b);
-	#endif
+str ts(bool x) { return x ? "YES" : "NO"; }
+
+// output
+tcT > void pr(const T &x) { cout << ts(x); }
+tcTUU > void pr(const T &t, const U &...u) {
+  pr(t);
+  pr(u...);
 }
-tcT> str ts(complex<T> c) { 
-	stringstream ss; ss << c; return ss.str(); }
-str ts(vector<bool> v) {
-	str res = "{"; F0R(i,sz(v)) res += char('0'+v[i]);
-	res += "}"; return res; }
-template<size_t SZ> str ts(bitset<SZ> b) {
-	str res = ""; F0R(i,SZ) res += char('0'+b[i]);
-	return res; }
-tcTU> str ts(pair<T,U> p);
-tcT> str ts(T v) { // containers with begin(), end()
-	#ifdef LOCAL
-		bool fst = 1; str res = "{";
-		for (const auto& x: v) {
-			if (!fst) res += ", ";
-			fst = 0; res += ts(x);
-		}
-		res += "}"; return res;
-	#else
-		bool fst = 1; str res = "";
-		for (const auto& x: v) {
-			if (!fst) res += " ";
-			fst = 0; res += ts(x);
-		}
-		return res;
- 
-	#endif
+void ps() { pr("\n"); }
+tcTUU > void ps(const T &t, const U &...u) {
+  pr(t);
+  if (sizeof...(u)) {
+    pr(" ");
+  }
+  ps(u...);
 }
-tcTU> str ts(pair<T,U> p) {
-	#ifdef LOCAL
-		return"("+ts(p.f)+", "+ts(p.s)+")"; 
-	#else
-		return ts(p.f)+" "+ts(p.s);
-	#endif
-}
- 
-// Output
-tcT> void pr(T v) { cout << ts(v); }
-tcTUU> void pr(const T& t, const U&... u) { 
-	pr(t); pr(u...); }
-void ps() { pr("\n"); } // no spaces
-tcTUU> void ps(const T& t, const U&... u) { 
-	pr(t); if (sizeof...(u)) pr(" "); ps(u...); }
- 
-// File In/Out
-void setIn(str s) { freopen(s.c_str(),"r", stdin); }
-void setOut(str s) { freopen(s.c_str(),"w", stdout); }
-void unsyncIO() { cin.tie(0)->sync_with_stdio(0); }
+
+void setIn(const str &f_name) { freopen(f_name.c_str(), "r", stdin); }
+void setOut(const str &f_name) { freopen(f_name.c_str(), "w", stdout); }
+void unsyncIO() { cin.tie(0)->sync_with_stdio(false); }
 void setIO(str st = "") {
-	unsyncIO();
-	if (sz(st)) { setIn(st+".in"), setOut(st+".out"); } // If problem requires file reading
+  unsyncIO();
+  if (sz(st)) {
+    setIn(st + ".in"), setOut(st + ".out");
+  }
 }
 
 // DEBUG
-void DBG() { cerr << "]" << endl; }
-tcTUU> void DBG(const T& t, const U&... u) {
-	cerr << ts(t); if (sizeof...(u)) cerr << ", ";
-	DBG(u...); }
-#ifdef LOCAL // compile with -DLOCAL, chk -> fake assert
-	#define dbg(...) cerr << "Line(" << __LINE__ << ") -> [" << #__VA_ARGS__ << "]: [", DBG(__VA_ARGS__)
-	#define chk(...) if (!(__VA_ARGS__)) cerr << "Line(" << __LINE__ << ") -> function(" \
-		 << __FUNCTION__  << ") -> CHK FAILED: (" << #__VA_ARGS__ << ")" << "\n", exit(0);
-#else
-	#define dbg(...) 0
-	#define chk(...) 0
-#endif
+void DBG() { cerr << "]\n"; }
+tcTUU > void DBG(const T &t, const U &...u) {
+  cerr << ts(t);
+  if (sizeof...(u)) {
+    cerr << ", ";
+  }
+  DBG(u...);
+}
 
-int m;
-ll a[2][mxN];
+int64_t n, a[2][MAXN];
+
+bool check(int64_t x) {
+  pi cur_pos = {1, 0};
+  pi prev_pos = {0, 0};
+  vector<vi> mark(2);
+
+  mark[0] = vi(n, 0);
+  mark[1] = vi(n, 0);
+
+  mark[0][0] = 1;
+  bool k = 0;
+
+  while (cur_pos.second < n) {
+    if (a[cur_pos.first][cur_pos.second] > x) {
+      // go right from prev prev_pos
+      if (prev_pos.first == cur_pos.first) {
+        mark[prev_pos.first][prev_pos.second] = 0;
+
+        prev_pos.first ^= 1;
+        x--;
+      }
+      prev_pos.second++;
+      while (prev_pos.second < n) {
+        if (a[prev_pos.first][prev_pos.second] > x)
+          return false;
+        prev_pos.second++;
+        x++;
+      }
+      prev_pos.second--;
+      prev_pos.first ^= 1;
+
+      while (prev_pos.second >= 0 && !mark[prev_pos.first][prev_pos.second]) {
+        if (a[prev_pos.first][prev_pos.second] > x)
+          return false;
+        x++;
+
+        prev_pos.second--;
+      }
+      return true;
+    }
+    x++;
+
+    mark[cur_pos.first][cur_pos.second] = 1;
+    prev_pos = cur_pos;
+    if (k == 0) {
+      cur_pos.second++;
+    } else {
+      cur_pos.first ^= 1;
+    }
+    k ^= 1;
+  }
+  return true;
+}
 
 void solve() {
-	a[0][0]--;
-	ll up = 0, down = 0;
-	for(int i = 0; i < m; i++) {
-		up = max(up, a[0][i] + 2*m - i);
-		up = max(up, a[1][i] + i + 1);
+  int64_t l = 0, r = 1e15;
+  int64_t ans = 0;
 
-		down = max(down, a[0][i] + i + 1);
-		down = max(down, a[1][i] + 2*m - i);
-	}
-	ll tmp = 0;
-	ll ans = up;
-	for(int i = 0; i < m; i++) {
-		for(int j = 0; j < 2; j++) {
-			int z = (i + j) % 2;
-			
-			tmp = max(tmp, a[z][i] + 2*m - 2*i - j);
-			if(i == m - 1) continue;
-			if(z == 0 && j == 1) {
-				ans = min(ans, max(tmp, up - i - 1));
-			}
-			else if(j == 1 && z == 1) {
-				ans = min(ans, max(tmp, down - i - 1));
-			}
-		}
-		if(i == m - 1) {
-			ans = min(ans, tmp);
-		}
-	}
-	ps(ans);
+  while (l <= r) {
+    int64_t middle = (l + r) >> 1;
+
+    if (check(middle)) {
+      ans = middle;
+      r = middle - 1;
+    } else {
+      l = middle + 1;
+    }
+  }
+  ps(ans + 2 * n - 1);
 }
 
 int main() {
-	setIO();
+  setIO();
 
-	int t; re(t);
+  size_t t;
+  re(t);
 
-	while(t--) {
-		re(m);
-		FOR(i, 0, 2) {
-			FOR(j, 0, m) {
-				re(a[i][j]);
-			}
-		}
-		solve();
-	}
+  while (t--) {
+    re(n);
+    FOR(i, 0, 2) {
+      FOR(j, 0, n) { re(a[i][j]); }
+    }
 
-	return 0;
-	//read stuff at the bottom ffs
+    solve();
+  }
+
+  return 0;
 }
