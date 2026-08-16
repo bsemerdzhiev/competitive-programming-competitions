@@ -42,7 +42,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 5e5 + 5;
+const int32_t MAXN = 2e5 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -144,77 +144,40 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int32_t n, q, a[MAXN];
-int32_t tree[3][tSZ];
-
-void update(int32_t k, int32_t l, int32_t r, int32_t ind, int32_t val,
-            int32_t br) {
-  if (r < ind || l > ind) {
-    return;
+int32_t extended_euclid(int32_t a, int32_t b, int32_t &x1, int32_t &y1) {
+  if (b == 0) {
+    x1 = 1;
+    y1 = 0;
+    return a;
   }
-  if (l == r) {
-    tree[br][k] = val;
-    return;
-  }
-  int32_t middle = (l + r) >> 1;
+  int32_t q = a / b;
 
-  update(k << 1, l, middle, ind, val, br);
-  update(k << 1 | 1, middle + 1, r, ind, val, br);
+  int32_t res = extended_euclid(b, a % b, x1, y1);
 
-  tree[br][k] = max(tree[br][k << 1], tree[br][k << 1 | 1]);
-}
+  int32_t new_x1 = y1;
+  int32_t new_y1 = (x1 - q * y1);
 
-int32_t query(int32_t k, int32_t l, int32_t r, int32_t i, int32_t j,
-              int32_t br) {
-  if (r < i || l > j) {
-    return 0;
-  }
-  if (r <= j && l >= i) {
-    return tree[br][k];
-  }
-  int32_t middle = (l + r) >> 1;
+  x1 = new_x1;
+  y1 = new_y1;
 
-  int32_t ans = 0;
-  ans = max(ans, query(k << 1, l, middle, i, j, br));
-  ans = max(ans, query(k << 1 | 1, middle + 1, r, i, j, br));
-
-  return ans;
-}
-
-void solve() {
-  FOR(i, 0, n + 1) {
-    FOR(j, 0, 3) { update(1, 1, n, i, 0, j); }
-  }
-  FOR(i, 1, n + 1) {
-    for (int32_t j{1}; j < 3; j++) {
-      int32_t res = query(1, 1, n, a[i] + 1, n, j - 1);
-
-      update(1, 1, n, j < 2 ? a[i] : i, res, j);
-      // ps(i, j, res);
-    }
-    update(1, 1, n, a[i], i, 0);
-  }
-  int32_t l, r;
-
-  for (int32_t i{0}; i < q; i++) {
-    re(l, r);
-
-    // ps(query(1, 1, n, l, r, 2));
-    ps(query(1, 1, n, l, r, 2) >= l ? "NO" : "YES");
-  }
+  return res;
 }
 
 int main() {
   setIO();
 
-  size_t t;
-  re(t);
+  int32_t a, b, c;
 
-  while (t--) {
-    re(n, q);
-    FOR(i, 1, n + 1) { re(a[i]); }
+  re(a, b, c);
 
-    solve();
+  int32_t x1, y1;
+  int32_t gcd = extended_euclid(a, b, x1, y1);
+
+  if (c % gcd != 0) {
+    ps("Not possible");
+  } else {
+    int32_t times = c / gcd;
+    ps(x1 * times, y1 * times, gcd);
   }
 
   return 0;

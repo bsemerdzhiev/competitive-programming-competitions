@@ -42,7 +42,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 5e5 + 5;
+const int32_t MAXN = 2e5 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -144,78 +144,103 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int32_t n, q, a[MAXN];
-int32_t tree[3][tSZ];
+int32_t n, m, k;
+str a, b;
 
-void update(int32_t k, int32_t l, int32_t r, int32_t ind, int32_t val,
-            int32_t br) {
-  if (r < ind || l > ind) {
+void fft(int32_t N, vector<complex<double>> &A, bool inv) {
+  if (N == 1) {
     return;
   }
-  if (l == r) {
-    tree[br][k] = val;
-    return;
+
+  vector<complex<double>> even(N / 2, 0), odd(N / 2, 0);
+  FOR(i, 0, N / 2) {
+    even[i] = A[i << 1];
+    odd[i] = A[i << 1 | 1];
   }
-  int32_t middle = (l + r) >> 1;
 
-  update(k << 1, l, middle, ind, val, br);
-  update(k << 1 | 1, middle + 1, r, ind, val, br);
+  fft(N / 2, even, inv);
+  fft(N / 2, odd, inv);
 
-  tree[br][k] = max(tree[br][k << 1], tree[br][k << 1 | 1]);
-}
+  double angle = 2 * PI * (inv ? -1 : 1) / N;
 
-int32_t query(int32_t k, int32_t l, int32_t r, int32_t i, int32_t j,
-              int32_t br) {
-  if (r < i || l > j) {
-    return 0;
+  complex<double> wk = 1;
+  complex<double> wn = complex(cos(angle), sin(angle));
+
+  FOR(i, 0, N / 2) {
+    A[i] = even[i] + wk * odd[i];
+    A[i + N / 2] = even[i] - wk * odd[i];
+
+    if (inv) {
+      A[i] /= 2;
+      A[i + N / 2] /= 2;
+    }
+    wk *= wn;
   }
-  if (r <= j && l >= i) {
-    return tree[br][k];
-  }
-  int32_t middle = (l + r) >> 1;
-
-  int32_t ans = 0;
-  ans = max(ans, query(k << 1, l, middle, i, j, br));
-  ans = max(ans, query(k << 1 | 1, middle + 1, r, i, j, br));
-
-  return ans;
 }
 
 void solve() {
-  FOR(i, 0, n + 1) {
-    FOR(j, 0, 3) { update(1, 1, n, i, 0, j); }
+  int32_t N = 1;
+  while (N <= n) {
+    N *= 2;
   }
-  FOR(i, 1, n + 1) {
-    for (int32_t j{1}; j < 3; j++) {
-      int32_t res = query(1, 1, n, a[i] + 1, n, j - 1);
+  N *= 2;
 
-      update(1, 1, n, j < 2 ? a[i] : i, res, j);
-      // ps(i, j, res);
+  vi cnt(N, 0);
+  for (char c : {'A', 'C', 'G', 'T'}) {
+    queue<int32_t> qq;
+
+    for (int32_t i{0}; i < n; i++) {
+      if (a[i] == c) {
+        qq.push(i);
+      }
     }
-    update(1, 1, n, a[i], i, 0);
-  }
-  int32_t l, r;
+    vector<complex<double>> mark(N, 0);
+    vector<complex<double>> mark2(N, 0);
 
-  for (int32_t i{0}; i < q; i++) {
-    re(l, r);
+    for (int32_t i{0}; i < n; i++) {
+      while (!qq.empty() && abs(qq.front() - i) > k && qq.front() < i)
+        qq.pop();
 
-    // ps(query(1, 1, n, l, r, 2));
-    ps(query(1, 1, n, l, r, 2) >= l ? "NO" : "YES");
+      if (qq.empty()) {
+        break;
+      }
+
+      if (abs(qq.front() - i) <= k) {
+        mark[i] = 1;
+      }
+    }
+    FOR(i, 0, m) {
+      if (b[m - i - 1] == c) {
+        mark2[i] = 1;
+      }
+    }
+
+    fft(N, mark, false);
+    fft(N, mark2, false);
+
+    FOR(i, 0, N) { mark[i] *= mark2[i]; }
+
+    fft(N, mark, true);
+
+    FOR(i, 0, N) { cnt[i] += roundl(mark[i].real()); }
   }
+  int32_t ans = 0;
+  FOR(i, 0, N) {
+    if (cnt[i] == m) {
+      ans++;
+    }
+  }
+  ps(ans);
 }
 
 int main() {
   setIO();
 
-  size_t t;
-  re(t);
+  re(n, m, k);
+  re(a);
+  re(b);
 
-  while (t--) {
-    re(n, q);
-    FOR(i, 1, n + 1) { re(a[i]); }
-
-    solve();
-  }
+  solve();
 
   return 0;
 }
