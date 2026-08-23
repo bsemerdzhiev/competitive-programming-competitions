@@ -1,4 +1,7 @@
+#include <algorithm>
 #include <bits/stdc++.h>
+#include <cstdlib>
+#include <deque>
 
 using namespace std;
 
@@ -144,18 +147,134 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n;
+str a;
+map<int32_t, int32_t> cnt;
+deque<char> vc;
+int32_t variable_count;
+vector<str> ans;
+
+void add_variable() {
+  if (variable_count == 0) {
+    return;
+  }
+  if (variable_count == 1) {
+    if (vc.size() > 1 && vc.back() == '0') {
+      ps("impossible");
+      exit(0);
+    }
+    while (!vc.empty()) {
+      ans.pb(ts(vc.back()));
+      vc.pop_back();
+    }
+  } else {
+    ans.pb(ts(vc.front()));
+    vc.pop_front();
+  }
+  variable_count--;
+}
+
+void add_symbol(char sym) {
+  cnt[sym]--;
+  ans.pb(ts(sym));
+
+  if (cnt[sym] < 0) {
+    ps("impossible");
+    exit(0);
+  }
+}
+
+void add_sum() {
+  add_symbol('(');
+
+  add_variable();
+
+  add_symbol('+');
+
+  add_variable();
+
+  add_symbol(')');
+}
+
+void add_brackets() {
+  if (cnt['('] == 0) {
+    add_variable();
+    return;
+  }
+
+  add_sum();
+
+  add_symbol('*');
+
+  if (cnt['('] == 0) {
+    add_variable();
+  } else {
+    add_symbol('(');
+
+    add_variable();
+
+    add_symbol('+');
+
+    add_brackets();
+
+    add_symbol(')');
+  }
+}
+
+/*
+ * Next time, make the helper functions from the very start
+ */
+
+void solve() {
+  trav(x, a) {
+    if (x == '+' || x == '*' || x == '(' || x == ')') {
+      cnt[x]++;
+    } else {
+      vc.push_back(x);
+    }
+  }
+  variable_count = cnt['+'] + cnt['*'] + 1;
+
+  sort(vc.begin(), vc.end(),
+       [](const char &ff, const char &ss) { return ff - '0' < ss - '0'; });
+
+  if (cnt['('] != cnt[')'] || vc.size() <= cnt['+'] + cnt['*']) {
+    ps("impossible");
+    return;
+  }
+
+  add_brackets();
+
+  while (cnt['*']) {
+    if (!ans.empty()) {
+      add_symbol('*');
+    }
+    add_variable();
+  }
+
+  while (cnt['+']) {
+    if (!ans.empty()) {
+      add_symbol('+');
+    }
+
+    add_variable();
+  }
+
+  if (ans.empty())
+    add_variable();
+
+  ps("possible");
+  trav(x, ans) { pr(x); }
+  ps();
+}
 
 int main() {
   setIO();
 
-  size_t t;
-  re(t);
+  re(n);
+  re(a);
 
-  while (t--) {
-
-    solve();
-  }
+  solve();
 
   return 0;
 }
