@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <numeric>
 
 using namespace std;
 
@@ -144,7 +145,72 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int64_t n, a[MAXN];
+int64_t lcm_calced[21][MAXN];
+
+void solve() {
+  FOR(j, 0, n) { lcm_calced[0][j] = a[j]; }
+
+  FOR(i, 1, 21) {
+    FOR(j, 0, n) {
+      if (j + (1 << i) > n) {
+        break;
+      }
+
+      lcm_calced[i][j] =
+          lcm(lcm_calced[i - 1][j], lcm_calced[i - 1][j + (1 << (i - 1))]);
+    }
+  }
+  vi marked(2 * n + 1, 0);
+
+  int32_t ans_cnt = 0;
+
+  FOR(i, 0, n) {
+    int64_t cur_lcm = a[i];
+    int32_t cur_ind = i;
+    int64_t cur_needed = 1;
+
+    while (cur_lcm % cur_needed == 0) {
+      cur_needed++;
+    }
+
+    if (marked[cur_needed] == 0) {
+      ans_cnt++;
+    }
+    marked[cur_needed] = 1;
+
+    while (true) {
+      for (int32_t z{20}; z >= 0; z--) {
+        if (cur_ind + (1 << z) - 1 < n &&
+            lcm(cur_lcm, lcm_calced[z][cur_ind]) % cur_needed != 0) {
+          cur_lcm = lcm(cur_lcm, lcm_calced[z][cur_ind]);
+          cur_ind += (1 << z);
+        }
+      }
+      if (cur_ind != n) {
+        cur_lcm = lcm(cur_lcm, a[cur_ind]);
+
+        while (cur_lcm % cur_needed == 0) {
+          cur_needed++;
+        }
+        if (marked[cur_needed] == 0) {
+          ans_cnt++;
+        }
+        marked[cur_needed] = 1;
+      } else {
+        break;
+      }
+    }
+  }
+
+  ps(ans_cnt);
+  FOR(z, 1, 2 * n + 1) {
+    if (marked[z]) {
+      pr(z, " ");
+    }
+  }
+  ps();
+}
 
 int main() {
   setIO();
@@ -153,6 +219,8 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n);
+    FOR(i, 0, n) { re(a[i]); }
 
     solve();
   }

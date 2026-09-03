@@ -42,7 +42,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 12e3 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -144,7 +144,140 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n, m;
+pl a[2][MAXN];
+vpl intervals;
+
+struct sol {
+  vl lens;
+
+  void add(int64_t vv) {
+    FOR(i, 0, sz(lens)) {
+      if (lens[i] <= vv) {
+        lens.insert(lens.begin() + i, vv);
+        return;
+      }
+    }
+    lens.push_back(vv);
+  }
+
+  bool operator<(const sol &rhs) const {
+    FOR(i, 0, min(rhs.lens.size(), lens.size())) {
+      if (rhs.lens[i] < lens[i]) {
+        return false;
+      } else if (rhs.lens[i] > lens[i]) {
+        return true;
+      }
+    }
+    return lens.size() < rhs.lens.size();
+  }
+};
+
+sol T[MAXN][5][2];
+
+sol rec(int32_t ind, int32_t side, bool rem_one) {
+  if (ind >= sz(intervals) - 1) {
+    return {};
+  }
+
+  sol &cur_sol = T[ind][side + 2][rem_one];
+
+  if (cur_sol.lens.size() != 0) {
+    return cur_sol;
+  }
+
+  bool has_seen_other = false;
+  FOR(z, ind + 1, sz(intervals)) {
+    if (intervals[z].f == intervals[ind].f && abs(intervals[z].s) != side) {
+      continue;
+    }
+    if (abs(intervals[z].s) != side && intervals[z].s > 0) {
+      continue;
+    }
+
+    if (abs(intervals[z].s) == side) {
+      sol new_sol = {};
+      if (has_seen_other) {
+        // we are inside another interval
+        new_sol = rec(z, side == 2 ? 1 : 2, has_seen_other);
+        new_sol.add(intervals[z].f - intervals[ind].f + 1 - rem_one);
+        cur_sol = max(cur_sol, new_sol);
+
+      } else {
+        if (z + 1 < sz(intervals)) {
+          new_sol = rec(z + 1, abs(intervals[z + 1].s), has_seen_other);
+        }
+        new_sol.add(intervals[z].f - intervals[ind].f + 1 - rem_one);
+        cur_sol = max(cur_sol, new_sol);
+      }
+
+      break;
+    } else {
+      has_seen_other = true;
+
+      sol new_sol = rec(z, side == 2 ? 1 : 2, false);
+
+      new_sol.add(intervals[z].f - intervals[ind].f - rem_one);
+      cur_sol = max(cur_sol, new_sol);
+    }
+  }
+
+  return cur_sol;
+}
+
+void solve() {
+  sort(a[0], a[0] + n);
+  sort(a[1], a[1] + m);
+
+  int32_t l1 = 0, l2 = 0;
+
+  intervals.clear();
+
+  while (l1 < n || l2 < m) {
+    while (l1 < n && l2 < m && a[0][l1].f <= a[1][l2].f &&
+           a[1][l2].s <= a[0][l1].s) {
+      l2++;
+    }
+
+    while (l1 < n && l2 < m && a[1][l2].f <= a[0][l1].f &&
+           a[0][l1].s <= a[1][l2].s) {
+      l1++;
+    }
+
+    if (l1 == n) {
+      intervals.pb(mp(a[1][l2].f, -1));
+      intervals.pb(mp(a[1][l2].s, 1));
+      l2++;
+    } else if (l2 == m) {
+      intervals.pb(mp(a[0][l1].f, -2));
+      intervals.pb(mp(a[0][l1].s, 2));
+      l1++;
+    } else {
+      if (a[0][l1].f < a[1][l2].f) {
+        intervals.pb(mp(a[0][l1].f, -2));
+        intervals.pb(mp(a[0][l1].s, 2));
+        l1++;
+      } else {
+        intervals.pb(mp(a[1][l2].f, -1));
+        intervals.pb(mp(a[1][l2].s, 1));
+        l2++;
+      }
+    }
+  }
+  sort(intervals.begin(), intervals.end());
+
+  FOR(i, 0, sz(intervals)) {
+    FOR(j, 0, 5) {
+      FOR(g, 0, 2) { T[i][j][g] = {}; }
+    }
+  }
+
+  sol answer = rec(0, abs(intervals[0].s), false);
+
+  ps(sz(answer.lens));
+  trav(x, answer.lens) { pr(x, " "); }
+  ps();
+}
 
 int main() {
   setIO();
@@ -153,6 +286,10 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n, m);
+    FOR(i, 0, n) { re(a[0][i].f, a[0][i].s); }
+
+    FOR(i, 0, m) { re(a[1][i].f, a[1][i].s); }
 
     solve();
   }
