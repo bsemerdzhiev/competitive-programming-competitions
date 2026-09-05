@@ -161,9 +161,7 @@ bool rec(int32_t v, int32_t p) {
         a[v] = *new_it;
         ss.erase(*new_it);
       } else {
-        // DBG(v);
         bool fl = false;
-        // DBG(a[p]);
         for (int32_t z{1}; z <= 2 * n; z += 2) {
           if (prime[abs(z - a[p])]) {
             a[v] = z;
