@@ -144,7 +144,61 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n;
+
+int64_t get_score(const str &cur_str) {
+  unordered_map<int32_t, int32_t> cnt;
+
+  int32_t sm = 0;
+  int32_t md = 1;
+  cnt[0]++;
+  for (int32_t i{0}; i < n; i++) {
+    if (cur_str[i] == '1') {
+      sm += md;
+      sm %= 3;
+    }
+    cnt[sm]++;
+
+    md *= 2;
+    md %= 3;
+  }
+  int64_t ans = 0;
+  trav(x, cnt) { ans += 1LL * x.second * (x.second - 1) / 2; }
+  return ans;
+}
+
+void solve() {
+  if (n == 1) {
+    ps("1");
+    return;
+  } else if (n == 2) {
+    ps("11");
+    return;
+  }
+
+  str ans_string(n, '0');
+  int64_t ans = 1LL * n * n;
+
+  for (int32_t i{n / 3 - 1}; i <= n / 3 + 1; i++) {
+    for (int32_t j{2 * n / 3 - 1}; j <= 2 * n / 3 + 1; j++) {
+      for (int32_t z{0}; z < 2; z++) {
+        string cur_string(n, '0');
+
+        cur_string[i] = '1';
+        cur_string[j] = '1';
+        if (z) {
+          cur_string[n - 1] = '1';
+        }
+        int64_t cur_score = get_score(cur_string);
+        if (cur_score < ans) {
+          ans = cur_score;
+          ans_string = cur_string;
+        }
+      }
+    }
+  }
+  ps(ans_string);
+}
 
 int main() {
   setIO();
@@ -153,6 +207,7 @@ int main() {
   re(t);
 
   while (t--) {
+    re(n);
 
     solve();
   }
