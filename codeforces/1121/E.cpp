@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+#include <cstdint>
+#include <unordered_map>
 
 using namespace std;
 
@@ -42,7 +44,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 3e3 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -144,15 +146,76 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n, a[MAXN];
+int32_t prime_factors[MAXN];
+int32_t max_numb[MAXN][MAXN];
+int32_t two_powers[MAXN];
+
+void solve() {
+  sort(a, a + n);
+
+  int32_t ans = 0;
+  for (int32_t i{0}; i < n; i++) {
+    vector<int32_t> vv;
+    for (int32_t j{i + 1}; j < n; j++) {
+      vv.push_back(max_numb[a[i]][a[j]]);
+    }
+    sort(vv.begin(), vv.end());
+
+    for (int32_t j{0}; j < sz(vv); j++) {
+      ans = MO::add(ans, MO::mul(vv[j], two_powers[sz(vv) - j - 1]));
+    }
+    ans = MO::add(ans, a[i]);
+  }
+  ps(ans);
+}
+
+void get_primes() {
+  vi is_prime(MAXN, 1);
+
+  FOR(i, 1, MAXN) { prime_factors[i] = 1; }
+
+  for (int64_t i{2}; i < MAXN; i++) {
+    if (is_prime[i]) {
+      for (int64_t j{i * i}; j < MAXN; j += i) {
+        is_prime[j] = 0;
+      }
+      for (int64_t j{i}; j < MAXN; j += i) {
+        prime_factors[j] *= i;
+      }
+    }
+  }
+  two_powers[0] = 1;
+  for (int32_t i{1}; i < MAXN; i++) {
+    two_powers[i] = MO::mul(two_powers[i - 1], 2);
+  }
+
+  for (int32_t i{1}; i < MAXN; i++) {
+    max_numb[i][i] = i;
+
+    for (int32_t j{1}; j < i; j++) {
+      if (j % prime_factors[i] == 0) {
+        assert(j != 1);
+
+        max_numb[j][i] = max_numb[j - 1][i - 1];
+      } else {
+        max_numb[j][i] = max_numb[j][i - 1];
+      }
+    }
+  }
+}
 
 int main() {
   setIO();
+
+  get_primes();
 
   size_t t;
   re(t);
 
   while (t--) {
+    re(n);
+    FOR(i, 0, n) { re(a[i]); }
 
     solve();
   }
