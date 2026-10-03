@@ -43,7 +43,7 @@ using ld = long double;
 #define ub upper_bound
 
 const int32_t MOD = 998244353;
-const int32_t MAXN = 2e5 + 5;
+const int32_t MAXN = 1e3 + 5;
 const int64_t INF = 1e18;
 const double PI = acos(-1);
 const int32_t tSZ = (1 << 21);
@@ -147,7 +147,7 @@ tcTUU > void DBG(const T &t, const U &...u) {
 
 int32_t n, m, t;
 int32_t a[4][6];
-unordered_map<int32_t, int32_t> ports;
+int32_t ports[MAXN];
 
 void solve() {
   vector<vector<vector<double>>> T(4);
@@ -163,11 +163,7 @@ void solve() {
     FOR(i, 1, t + 1) {
       FOR(j, 1, n) {
         FOR(z, 0, 6) {
-          int32_t new_square = min(n, j + a[die][z]);
-
-          if (ports.count(new_square)) {
-            new_square = ports[new_square];
-          }
+          int32_t new_square = ports[min(n, j + a[die][z])];
 
           T[die][i][new_square] += T[die][i - 1][j] * (1.00 / 6);
         }
@@ -223,6 +219,8 @@ int main() {
   FOR(i, 0, 4) {
     FOR(j, 0, 6) { re(a[i][j]); }
   }
+
+  FOR(i, 0, n + 1) { ports[i] = i; }
 
   int32_t l, r;
   FOR(i, 0, m) {
