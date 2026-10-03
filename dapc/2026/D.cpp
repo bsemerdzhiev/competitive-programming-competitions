@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <iomanip>
 
 using namespace std;
 
@@ -144,39 +145,92 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-int32_t n, k, a[MAXN];
+int32_t n, m, t;
+int32_t a[4][6];
+unordered_map<int32_t, int32_t> ports;
 
 void solve() {
-  vi cnt(2, 0);
-  FOR(i, 0, n) { cnt[__builtin_popcount(a[i]) % 2]++; }
-  pr(cnt[0], " ");
+  vector<vector<vector<double>>> T(4);
 
-  int32_t v, w;
-  FOR(i, 0, k) {
-    re(v, w);
-    v--;
-
-    cnt[__builtin_popcount(a[v]) % 2]--;
-    a[v] = w;
-    cnt[__builtin_popcount(a[v]) % 2]++;
-
-    pr(cnt[0], " ");
+  FOR(d, 0, 4) {
+    T[d].resize(t + 1);
+    FOR(i, 0, t + 1) { T[d][i].resize(n + 1, 0); }
   }
-  ps();
+
+  FOR(die, 0, 4) {
+    T[die][0][1] = 1;
+
+    FOR(i, 1, t + 1) {
+      FOR(j, 1, n) {
+        FOR(z, 0, 6) {
+          int32_t new_square = min(n, j + a[die][z]);
+
+          if (ports.count(new_square)) {
+            new_square = ports[new_square];
+          }
+
+          T[die][i][new_square] += T[die][i - 1][j] * (1.00 / 6);
+        }
+      }
+    }
+  }
+
+  double ans = 0;
+  FOR(chosen_die, 0, 4) {
+    double cur_ans = 0;
+
+    double accum = 1.00;
+
+    FOR(z, 1, t) {
+      double cur_mult = T[chosen_die][z][n];
+
+      FOR(g, 0, 4) {
+        if (g == chosen_die)
+          continue;
+
+        double not_finished = 0.0;
+
+        FOR(cell, 1, n) { not_finished += T[g][z][cell]; }
+
+        cur_mult *= not_finished;
+      }
+      cur_ans += cur_mult;
+    }
+    // check specifically for t+1
+    double reached_cell[4] = {0, 0, 0, 0};
+    FOR(cell, 2, n + 1) {
+      FOR(g, 0, 4) { reached_cell[g] += T[g][t][cell - 1]; }
+
+      double cur_mult = 1.0;
+      FOR(g, 0, 4) {
+        if (g != chosen_die) {
+          cur_mult *= reached_cell[g];
+        }
+      }
+      cur_ans += cur_mult * T[chosen_die][t][cell];
+    }
+    ans = max(ans, cur_ans);
+  }
+
+  cout << std::setprecision(8) << ans << "\n";
 }
 
 int main() {
   setIO();
 
-  size_t t;
-  re(t);
+  re(n, m, t);
 
-  while (t--) {
-    re(n, k);
-    FOR(i, 0, n) { re(a[i]); }
-
-    solve();
+  FOR(i, 0, 4) {
+    FOR(j, 0, 6) { re(a[i][j]); }
   }
+
+  int32_t l, r;
+  FOR(i, 0, m) {
+    re(l, r);
+    ports[l] = r;
+  }
+
+  solve();
 
   return 0;
 }
