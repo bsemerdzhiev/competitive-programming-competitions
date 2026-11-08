@@ -145,52 +145,45 @@ tcTUU > void DBG(const T &t, const U &...u) {
 }
 
 int32_t n, a[MAXN];
+int32_t T[3 * MAXN][(1 << 3)];
 int32_t contained[3 * MAXN];
 
-int32_t rec(int32_t ind, int32_t prev_mask) {
-  if (ind > 3 * n) {
-    return 1;
-  }
-
-  int32_t ans = 1;
-  for (int32_t i{0}; i < 2; i++) {
-    int32_t new_mask = ((prev_mask >> 1)) | (i << 2);
-
-    if (i && contained[ind] == 0) {
-      continue;
-    }
-    if (__builtin_popcount(new_mask) == 4 || __builtin_popcount(new_mask) <= 2)
-      continue;
-
-    ans = MO::add(ans, rec(ind + 1, new_mask));
-  }
-  return ans;
-}
-
 void solve() {
-  int32_t ans = n + (n * (n - 1)) / 2;
+  int64_t ans = (n + (1LL * n * (n - 1)) / 2) % MOD;
 
-  for (int32_t i{0}; i <= 3 * n; i++) {
+  for (int32_t i{0}; i <= 3 * n + 3; i++) {
     contained[i] = 0;
+    for (int32_t j{0}; j < (1 << 3); j++) {
+      T[i][j] = 0;
+    }
   }
 
   for (int32_t i{0}; i < n; i++) {
     contained[a[i]] = 1;
   }
 
-  for (int32_t i{1}; i < 3 * n - 3; i++) {
+  for (int32_t i{3 * n}; i >= 0; i--) {
     for (int32_t j{0}; j < (1 << 3); j++) {
-      if (__builtin_popcount(j) != 3 || (j & (1 << 2)) == 0)
-        continue;
-      bool cant_use = false;
-      for (int32_t z{0}; z < 3; z++) {
-        if ((((1 << z) & j) && !contained[i + z]) || i + z > 3 * n) {
-          cant_use = true;
+      for (int32_t take{0}; take < 2; take++) {
+        int32_t current_mask = ((j << 1) & 0b111) | take;
+
+        if (take == 0) {
+          T[i][current_mask] = MO::add(T[i][current_mask], T[i + 1][j]);
+        } else if (contained[i] == 1 && take == 1 &&
+                   __builtin_popcount(j) == 2) {
+          T[i][current_mask] = MO::add(T[i][current_mask], T[i + 1][j]);
+          ans = MO::add(ans, T[i + 1][j]);
         }
       }
-
-      if (!cant_use) {
-        ans = MO::add(ans, rec(i + 3, j));
+    }
+    // generate the two last elements here
+    if (contained[i]) {
+      for (int32_t j{0}; j < 2; j++) {
+        int32_t new_mask = 1;
+        if (contained[i + 1 + j]) {
+          new_mask ^= (1 << (j + 1));
+          T[i][new_mask] = MO::add(T[i][new_mask], 1);
+        }
       }
     }
   }
