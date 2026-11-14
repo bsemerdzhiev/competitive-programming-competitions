@@ -144,17 +144,104 @@ tcTUU > void DBG(const T &t, const U &...u) {
   DBG(u...);
 }
 
-void solve() {}
+int32_t n, m;
+vector<vi> graph;
+str a;
+vector<int32_t> answer;
+
+void dfs(int32_t v, int32_t prev, int32_t z) {
+  if (z) {
+    answer[v - 2] = 1;
+  }
+
+  trav(x, graph[v]) {
+    if (x == prev) {
+      continue;
+    }
+    dfs(x, v, z ^ 1);
+  }
+}
+
+void solve() {
+  if (m == n) {
+    ps(string(n - 1, '0'));
+  } else {
+    answer.assign(n + 1, 0);
+    dfs(1, 1, 0);
+
+    FOR(i, 0, n - 1) { pr(answer[i]); }
+    ps();
+  }
+}
+
+void build_graph() {
+  graph.assign(n + 1, {});
+
+  int32_t first_one = -1;
+
+  for (int32_t i{0}; i < n - 1; i++) {
+    if (a[i] == '1') {
+      first_one = i + 2;
+      break;
+    }
+  }
+
+  if (first_one == -1) {
+    ps(n);
+
+    ps(1, 2);
+    ps(1, 3);
+    ps(2, 3);
+    for (int32_t i{4}; i <= n; i++) {
+      ps(1, i);
+    }
+
+  } else {
+    ps(n - 1);
+
+    for (int32_t i{0}; i < n - 1; i++) {
+      if (a[i] == '1') {
+        ps(1, i + 2);
+      } else {
+        ps(first_one, i + 2);
+      }
+    }
+  }
+}
 
 int main() {
   setIO();
 
-  size_t t;
-  re(t);
+  str type;
+  re(type);
 
-  while (t--) {
+  if (type == "first") {
+    size_t t;
+    re(t);
 
-    solve();
+    while (t--) {
+      re(n);
+      re(a);
+
+      build_graph();
+    }
+  } else {
+    size_t t;
+    re(t);
+
+    while (t--) {
+      re(n, m);
+      graph.assign(n + 1, {});
+      int32_t v, w;
+
+      FOR(i, 0, m) {
+        re(v, w);
+        graph[v].pb(w);
+        graph[w].pb(v);
+      }
+
+      solve();
+    }
   }
 
   return 0;
